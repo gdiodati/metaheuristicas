@@ -16,3 +16,7 @@
 
 - [Java Heuristic](http://shah.freeshell.org/graphcoloring/)
 
+## Sudokus
+
+- http://lipas.uwasa.fi/~timan/sudoku
+
