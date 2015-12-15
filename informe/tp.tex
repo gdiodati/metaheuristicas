@@ -1,0 +1,378 @@
+\documentclass[a4paper,spanish]{article}
+
+\usepackage{url}
+\usepackage{tabu}
+\usepackage{float}
+\usepackage{cite}
+\usepackage[spanish]{cleveref}
+\usepackage[colorlinks]{hyperref}
+\usepackage{fancyvrb}
+
+
+\bibliographystyle{unsrt}
+
+\input{preambulo}
+
+\hyphenation{ob-te-ner}
+
+\begin{document}
+
+\input{caratula}
+
+%\tableofcontents
+\tableofcontents
+\pagebreak
+
+%\pagebreak
+\section{Resumen}
+En el siguiente trabajo práctico resolveremos un problema NP-Completo llamado
+Sudoku. Mostraremos una estrategia de resolución exacta y una metaheurística
+para resolver el problema. Finalmente mostraremos los resultados de aplicar la
+metaheurística.
+
+
+\section{Introducción}
+\label{sec:intro}
+
+El juego \emph{Sudoku} es un rompecabezas lógico que trata la ubicación de
+números en una grilla de $N^2 x N^2$. Este tiene celdas con valores ya fijados y
+el objetivo es completar las celdas
+faltantes con valores de $1..N^2$. La grilla se subdivide en $N$ cuadrantes de
+$N x N$  y se debe completar cumpliendo con las siguientes reglas:
+
+\begin{enumerate}
+    \label{enum:principios}
+
+    \item Cada fila debe tener los valores de 1 a N una única vez
+    \item Cada columna debe tener los valores de 1 a N una única vez
+    \item Cada subcuadrante de $NxN$ debe tener los valores de 1 a N una única vez
+\end{enumerate}
+
+Un ejemplo de este tipo de problemas tan conocido se observa en la tabla
+\ref{tab:sudoku_ejemplo}
+
+\begin{figure}[H]
+    \begin{center}
+        \begin{tabular}{||c | c | c|| c| c| c|| c| c| c||}
+            \hline
+            \hline
+            &   &   &   &   &   &   &   &   \\
+            \hline
+            &   &   & 4 &   &   & 3 &   &   \\
+            \hline
+            6 &   &   &   &   & 7 &   &   &   \\
+            \hline
+            \hline
+            & 5 &   &   &   & 4 &   &   &   \\
+            \hline
+            4 &   &   &   & 1 &   &   &   & 5 \\
+            \hline
+            & 3 & 1 & 7 &   & 9 & 8 &   &   \\
+            \hline
+            \hline
+            &   & 3 &   &   &   &   & 5 &   \\
+            \hline
+            & 6 &   & 8 &   &   & 4 &   & 9 \\
+            \hline
+            9 & 8 &   &   & 7 &   & 1 & 6 &   \\
+            \hline
+            \hline
+
+        \end{tabular}
+        \label{tab:sudoku_ejemplo}
+        \caption{Sudoku ejemplo}
+    \end{center}
+\end{figure}
+
+
+La resolución de este problema aplicando reglas lógicas se puede ver en los
+metodos Swordfish  o X-Wings.
+
+Notoriamente en los últimos tiempos, han surgido diversos métodos para resolver
+de manera heurística el problema.
+
+Los métodos de resolución exacta para este problema con \emph{Fuerza bruta}
+consiste en asignar posibles valores iterativamente a las celdas e ir
+verificando si el sudoku verifica las reglas a medida que se siguen completando
+los blancos.
+
+Este esquema es costoso y a menudo se utiliza con backtracking.
+
+
+En la actualidad se han encontrado avances en la resolución de Sudoku utilizando
+algorítmos genéticos \cite{mantere2007solving}, Búsqueda harmónica
+\cite{geem2007harmony}, SAT-Solving \cite{lynce2006sudoku} y finalmente
+Simulated Annealing \cite{lewis2007metaheuristics}.
+
+
+En este trabajo nos centraremos en un acercamiento de búsqueda local comparando
+los métodos Búsqueda local\cite{aarts2003local} y Threshold
+Accepting\cite{dueck1990threshold} con lo expresado por el autor de
+\cite{lewis2007metaheuristics}.
+
+\section{Búsqueda Local}
+
+Supongamos que tenemos un problema al que queremos encontrarle una solución
+óptima, este problema toma diversos parámetros y ante cada instanciación
+devuelve una solución que puede ser correcta en terminos de las restricciones
+del problema, puede ser óptima en terminos de ser la mejor solucion, o puede ser
+ni una ni la otra. En este último caso, deberemos evaluar si siguiendo por esa
+solución parcial del problema alcanzaremos una solución que sea a la vez
+correcta y óptima.
+
+Las soluciones factibles definen el espacio de soluciones que verifican ciertas
+condiciones, dentro de las que nos mantendremos sin violar las restricciones del
+problema.
+
+Una solución óptima puede no ser siempre alcanzable y en ese caso se busca la
+mejor solución. Se dice que una solución $S_1$ es mejor que solución $S_2$ si
+dada una función objetivo  que toma instancias de solución nos permite
+compararlas para determinar si una es mejor que la otra.
+\begin{equation}
+    f(S_1) < f(S_2) 
+\end{equation}
+
+Para poder recorrer el espacio de soluciones del problema, definimos una función
+de vecindad que dada una solución inicial $S_i$ del problema nos devuelve una
+solución $S$.
+
+
+El método de Búsqueda local entonces, itera sobre el espacio de soluciones
+buscando en cada paso obtener una mejor solución parcial hasta alcanzar un
+mínimo. Luego de la estabilización, este se detiene.
+
+¿Qué sucede si el método no alcanzó el mínimo absoluto? Este estanca
+en una solución que no se encuentra cercana al valor óptimo y terminará
+arrojando un mínimo local.
+
+Es por este motivo que se determinan optimizaciones a Búsqueda Local, como
+pueden ser Simmulating annealing, Hill Climbing, Tabú Search o Threshold
+Accepting.
+
+\emph{Threshold Accepting} en contraposición a \emph{Búsqueda Local} permite
+movimientos a soluciones cuya función objetivo no necesariamente mejora. Esto le
+permite salir de los mínimos locales. Al igual que en búsqueda local, es
+necesario definir la función objetivo y la función para obtener el próximo
+vecino, pero también requiere definir los umbrales ante los cuales se aceptan
+evaluaciones de la función de objetivo que son peores a la solución actual.
+A medida que pasan las iteraciones, el valor umbral disminuye haciendo que el
+algoritmo se comporte identicamente a búsqueda local.
+
+
+\section{Desarrollo}
+
+
+En la sección anterior discutimos dos metaheurísticas de búsqueda local, ambas
+precisan la definición de la función objetivo y la función de vecindad.
+
+
+Ahora daremos definiciones para ellas:
+
+
+\subsection{Solución inicial}
+
+Nuestra solución inicial está definida de manera que no se rompa la regla 3
+definida en las reglas de sudoku. De esta manera asignaremos valores del 1 al
+$N^2$ en cada cuadrante de $NxN$ sin que se repitan.
+
+Así buscaremos mejorar nuestra solución hasta que se cumplan las reglas 1 y 2. 
+
+\begin{Verbatim}[samepage=true]
+function(mat){
+  // Iteramos por subcuadrantes en una matriz de 9x9
+  for(i in c(1,4,7)){ 
+    for (j in c(1,4,7)){
+      square = mat[seq(i,i+(N-1)),seq(j,j+(N-1))]
+      used_nums = square[square>0] // obtenemos las celdas utilizadas
+      all_nums = 1:N2
+      // nos quedamos con los numeros faltantes en el subcuadrante
+      fillers = all_nums[!all_nums %in% used_nums] 
+      // Asignamos a los
+      // valores en 0, una permitación al azar de los numeros sin usar
+      square[square == 0] = sample(fillers, length(fillers)) 
+      // Reemplazamos el subcuadrante
+      mat[seq(i,i+(N-1)),seq(j,j+(N-1))] = square 
+    }
+  }
+  return(mat)
+}
+    
+\end{Verbatim}
+
+
+
+\subsection{Función objetivo}
+
+Definiremos la función objetivo como la suma de la cantidad de elementos
+repetidos por fila y columna.  
+Esta función vale cero cuando la solución del sudoku es correcta.
+
+
+Definimos la función delta de la siguiente manera. Toma un vector de valores y
+devuelve la cantidad de elementos repetidos.
+
+\begin{Verbatim}[samepage=true]
+delta = function (x) {
+    length(x) - length(unique(x))
+} 
+\end{Verbatim}
+
+Entonces la función objetivo se define como la suma de la función delta para
+cada fila y para cada columna de la siguiente manera:
+
+\begin{Verbatim}[samepage=true]
+function(mat){ 
+  colum = apply(mat, POR_COLUMNAS, delta)
+  rows = apply(mat, POR_FILAS, delta)
+  return(sum(colum + rows))
+} 
+\end{Verbatim}
+
+
+\subsection{Función de vecindad}
+
+Definimos nuestra función de vecindad que toma una matriz sudoku como fue
+definida en \ref{sec:intro}.
+Intercambiaremos un valor (seleccionado al azar) dentro de la matriz por otro
+dentro del mismo cuadrante, también seleccionado al azar. Tendremos cuidado en
+no intercambiar los valores que ya vinieron fijos en el sudoku de entrada.
+
+\begin{Verbatim}[samepage=true]
+function(mat){
+  // obtenemos dos indices al azar dentro del rango de la matriz
+  i_j = sample(1:N2, 2) 
+  // Otenemos dos indices al azar dentro del mismo subcuadrante
+  l_k = get_next_index(i_j)
+  // si son iguales o es una celda fija generamos otro par de indices
+  if(all(i_j == l_k) | is_fixed(i_j)){
+    return(gen_neighbourgh(mat))
+  }
+  // Si obtuvimos indices validos intercambiamos los valores y retornamos la
+  matriz
+  tmp = mat[i_j[1], i_j[2]]
+  mat[i_j[1], i_j[2]] = mat[l_k[1], l_k[2]]
+  mat[l_k[1], l_k[2]] = tmp
+  return(mat)
+}
+
+    
+\end{Verbatim}
+
+\subsection{Casos de prueba}
+
+
+Para evaluar el comportamiento de ambos algorítmos utilizamos casos de prueba
+generados con la aplicación \emph{qqwing}\footnote{\url{http://qqwing.com/}}. Este nos permite generar tableros
+sudoku de distinta dificultad.
+
+Para esto generamos veinte tableros de cada tipo de dificultad para poder
+evaluar el comportamiento de ámbos algorítmos y la asignación reportada por cada
+uno.
+
+Los tableros generados fueron del tipo facil, medio y difícil. Cada uno está
+determinado por la dificultad de resolución lógico deductiva. Esto lo hicimos de
+esta manera para poder mostrar la relación entre este tipo de dificultad y la
+corrida de los algoritmos.
+
+Para las figuras  \ref{img:histo_easy}, \ref{img:histo_med} y
+\ref{img:histo_hard}, corrimos ambos algoritmos con un set de 20 instancias de
+sudoku generadas al azar para determinar cual es la eficacia del altorítmo para
+3000 iteraciones (este valor se determinó empiricamente en base a esperimentos
+anteriores).
+Podemos observar la cantidad de soluciones óptimas que ha obtenido cada
+algorítmo. Observamos que Threshold Accepting supera a Búsqueda local por más de
+un 50\%.
+
+También se observa que la convergencia de las soluciones es buena, es decir que
+todos los valores que se han obtenido están en un entorno cercano a la solución
+óptima.
+
+
+\begin{center}
+    \begin{figure}
+        \includegraphics[width=\textwidth]{imgs/problemas_easy_histo.png}
+        \caption{Histograma asignación Búsqueda local (LS) y Threshold
+        Accepting (TA) para el conjunto de problemas fácil)}
+        \label{img:histo_easy}
+    \end{figure}
+\end{center}
+\begin{center}
+    \begin{figure}
+        \includegraphics[width=\textwidth]{imgs/problemas_med_histo.png}
+        \caption{Histograma asignación Búsqueda local (LS) y Threshold
+        Accepting (TA) para el conjunto de problemas mediano}
+        \label{img:histo_med}
+    \end{figure}
+\end{center}
+\begin{center}
+    \begin{figure}
+        \includegraphics[width=\textwidth]{imgs/problemas_hard_histo.png}
+        \caption{Histograma asignación Búsqueda local (LS) y Threshold
+        Accepting (TA) para el conjunto de problemas difícil}
+        \label{img:histo_hard}
+    \end{figure}
+\end{center}
+
+También observamos que en \ref{img:histo_med} la obtención del óptimo es mucho
+mayor. Cosa que no se reproduce en \ref{img:histo_easy} ni en
+\ref{img:histo_hard}. Esto nos muestra que no depende de la facilidad de
+resolución del problema (en términos lógico deductivos) sino más bien en la
+distribución de los vecinos.
+
+Si observamos el comportamiento de los algorítmos con un tablero fijo y variando
+la cantidad de iteraciones que precisa para alcanzar el óptimo obtenemos las
+figuras \ref{img:prog_ls} y \ref{img:prog_ta}. Para esto se generaron 50
+corridas de asignacion variando la cantidad de iteraciones admitidas para el
+algorítmo de 100 a 3000.
+
+Las figuras presentan las medias y varianzas observacionales de los
+experimentos.
+
+
+\begin{center}
+    \begin{figure}[H]
+        \includegraphics[width=\textwidth]{imgs/BLsol_progresion.png}
+        \caption{Progresión de parámetro máxima cantidad de iteraciones para Búsqueda Local}
+        \label{img:prog_ls}
+    \end{figure}
+\end{center}
+
+
+\begin{center}
+    \begin{figure}[H]
+        \includegraphics[width=\textwidth]{imgs/TAsol_progresion.png}
+        \caption{Progresión de parámetro máxima cantidad de iteraciones para
+        Threshold Accepting}
+        \label{img:prog_ta}
+    \end{figure}
+\end{center}
+
+Determinamos que los algorítmos se estabilizan luego de las 3000 iteraciones
+aunque la varianza para la asignación es muy elevada. Esto nos indica que el
+espacio de soluciones es muy grande y por lo tanto en algunos casos los mínimos locales
+alcanzados son dificiles de sobrellevar.
+
+
+
+\section{Discusión}
+
+En este trabajo experimentamos con la resolución del problema de Sudoku con dos
+heurísticas distintas de búsqueda local. Utilizamos el esquema \textit{puro} de
+búsqueda local y una modificación \emph{Threshold Accepting} para contrastar los
+resultados y medir la eficacia de cada algorítmo.
+
+Encontramos que Threshold Accepting resuelve más instancias del problema que
+Búsqueda local con una penalidad en cantidad de operaciones.
+
+Encontramos que no hay relación entre la dificultad de resolver los problemas de
+manera lógico deductivo con la resolución algorítmica utilizando estos métodos.
+
+La facilidad de implementación de estos algorítmos los hacen excelentes
+candidatos para poder determinar una solución inicial para un problema
+combinatorio de estas características. Sin embargo es probable que no encuentren
+el mínimo global dado las limitaciones que presentan en su diseño.
+
+
+\bibliography{citas}
+
+\end{document}
