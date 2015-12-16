@@ -6,10 +6,15 @@ class Node
     @row = row
     @col = col
     @color = nil
+    @fixed = false
   end
 
   def coords
     [row, col]
+  end
+
+  def <=>(other)
+    other.saturation_degree <=> saturation_degree
   end
 
   def degree
@@ -20,16 +25,29 @@ class Node
     adjacent_colors.size
   end
 
+  def fix_color(color)
+    @color = color
+    @fixed = true
+  end
+
+  def color=(color)
+    @color = color unless @fixed
+  end
+
   def colored?
     !!@color
   end
 
   def conflict?
-    colored? && @color > graph.size
+    colored? && !@fixed && @color > graph.size
+  end
+
+  def fixed?
+    @fixed
   end
 
   def adjacent_colors
-    @graph.adjacent(self).map!(&:color).uniq.compact
+    graph.adjacent(self).map!(&:color).uniq.compact
   end
 
   def assign_first_possible_color
@@ -37,11 +55,13 @@ class Node
 
     possible_colors = (1..k).to_a - adjacent_colors
 
-    @color = possible_colors.empty? ? rand(k) + 1 : possible_colors.first
+    @color = possible_colors.empty? ? rand(k) + 100 : possible_colors.first
   end
 
   def inspect
-    "<Node [#{row},#{col}] color='#{@color}'>"
+    is_fixed = @fixed ? " FIXED" : ''
+
+    "<Node [#{row},#{col}] color='#{@color}' dsatur=#{saturation_degree}#{is_fixed}>"
   end
 
   def to_s

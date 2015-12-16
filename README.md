@@ -4,6 +4,8 @@
 
 ### Graph Coloring
 
+- [ ] Falta elegir la funcion objetivo
+
 - [SDO_LDO](http://www.phys.ubbcluj.ro/~zneda/edu/mc/graphcolouring.pdf)
 - [Degree Based Ordering](https://heuristicswiki.wikispaces.com/Degree+based+ordering)
 - [Graph Coloring](https://heuristicswiki.wikispaces.com/Graph+coloring)

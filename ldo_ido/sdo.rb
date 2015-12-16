@@ -1,26 +1,26 @@
 require_relative 'sudoku_graph'
 require_relative 'node'
 
-def main(graph)
-  colored_nodes = graph.vertices.select(&:colored?).size
-  total_nodes = graph.vertices.size
+def dsatur(sudoku)
+  total_nodes = sudoku.vertices.size
+  colored_nodes = sudoku.vertices.select(&:colored?).size
   node_index = nil
-  index = -1
 
   while colored_nodes < total_nodes
     max = -1
 
-    vertices = graph.vertices.shuffle
+    # SDO
+    vertices = sudoku.vertices.reject(&:colored?).shuffle.sort
+
     vertices.each_with_index do |node, i|
-      unless node.colored?
+      # unless node.colored?
         sd = node.saturation_degree
 
-        if sd > max
+        if sd >= max
           max = sd
-          index = i
           node_index = vertices[i]
         end
-      end
+      # end
 
       if node_index && !node_index.colored?
         node_index.assign_first_possible_color
@@ -29,42 +29,56 @@ def main(graph)
     end
   end
 
-  graph
+  sudoku
 end
 
-def reset_conflictive_nodes(sudoku)
-  sudoku.conflictive_nodes.each do |cn|
-    sudoku.reset_colors cn
+def repair(sudoku, count = 500)
+  min = sudoku.conflictive_nodes.size
+  min_s = sudoku.dup
+
+  count.times do |x|
+    amount_conflictive_nodes = sudoku.conflictive_nodes.size
+
+    if amount_conflictive_nodes.zero?
+      min_s = sudoku.dup
+      break
+    end
+
+    sudoku.conflictive_nodes.each do |cn|
+      sudoku.resolve_conflict cn
+    end
+
+    dsatur sudoku
+
+    if amount_conflictive_nodes < min
+      min = amount_conflictive_nodes
+      min_s = sudoku.dup
+
+      puts "Bajamos los conflictos a: #{min}"
+    end
+
   end
+
+  sudoku = min_s
 end
 
-sudoku = SudokuGraph.new 9
+# 'input/s08a.txt'
+a = SudokuGraph.from_file(ARGV[0]);
 
-main sudoku
+dsatur a
+puts "Conflictos iniciales: #{a.conflictive_nodes.size}"
 
-puts sudoku
-
-puts "recalculando"
-
-min = 10000
-max = 0
-min_s, max_s = nil
 100.times do |x|
-  reset_conflictive_nodes sudoku
-  main sudoku
+  a = repair a
 
-  if sudoku.conflictive_nodes.size > max
-    max = sudoku.conflictive_nodes.size
-    max_s = sudoku.dup
+  if a.solved?
+    puts "Iterations: #{x}"
+    break
   end
 
-  if sudoku.conflictive_nodes.size < min
-    min = sudoku.conflictive_nodes.size
-    min_s = sudoku.dup
-
-    puts "*" * 80
-    puts sudoku
-  end
+  a.wipe
+  dsatur a
 end
 
-require 'pry'; binding.pry
+puts "Solucion Final"
+puts a
