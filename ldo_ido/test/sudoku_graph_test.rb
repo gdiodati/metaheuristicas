@@ -20,9 +20,9 @@ describe SudokuGraph do
 
         expected = [[0,0], [1,0], [2,0], [3,0]]
 
-        adjacents_a = @sudoku.vertical_for(node_a).map(&:coords)
-        adjacents_c = @sudoku.vertical_for(node_c).map(&:coords)
-        adjacents_i = @sudoku.vertical_for(node_i).map(&:coords)
+        adjacents_a = @sudoku.send(:vertical_for, node_a).map(&:coords)
+        adjacents_c = @sudoku.send(:vertical_for, node_c).map(&:coords)
+        adjacents_i = @sudoku.send(:vertical_for, node_i).map(&:coords)
 
         assert_equal expected, adjacents_a
         assert_equal expected, adjacents_i
@@ -37,9 +37,9 @@ describe SudokuGraph do
 
       expected = [[0,0], [0,1], [0,2], [0,3]]
 
-      adjacents_a = @sudoku.horizontal_for(node_a).map(&:coords)
-      adjacents_c = @sudoku.horizontal_for(node_c).map(&:coords)
-      adjacents_i = @sudoku.horizontal_for(node_i).map(&:coords)
+      adjacents_a = @sudoku.send(:horizontal_for, node_a).map(&:coords)
+      adjacents_c = @sudoku.send(:horizontal_for, node_c).map(&:coords)
+      adjacents_i = @sudoku.send(:horizontal_for, node_i).map(&:coords)
 
       assert_equal expected, adjacents_a
       assert_equal expected, adjacents_c
@@ -54,10 +54,10 @@ describe SudokuGraph do
 
       expected = [[0,0], [0,1], [1,0], [1,1]]
 
-      adjacents_a = @sudoku.block_for(node_a).map(&:coords)
-      adjacents_c = @sudoku.block_for(node_c).map(&:coords)
-      adjacents_f = @sudoku.block_for(node_f).map(&:coords)
-      adjacents_i = @sudoku.block_for(node_i).map(&:coords)
+      adjacents_a = @sudoku.send(:block_for, node_a).map(&:coords)
+      adjacents_c = @sudoku.send(:block_for, node_c).map(&:coords)
+      adjacents_f = @sudoku.send(:block_for, node_f).map(&:coords)
+      adjacents_i = @sudoku.send(:block_for, node_i).map(&:coords)
 
       assert_equal expected, adjacents_a
       assert_equal expected, adjacents_f

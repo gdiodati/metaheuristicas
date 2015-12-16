@@ -1,0 +1,45 @@
+#!/usr/bin/env ruby
+#
+
+require_relative 'sdo'
+require_relative 'file_reader'
+
+if ARGV.empty?
+  puts "Usage: "
+  puts "\t./solver <dot|regular> file_path [sudoku size] [repair iterations] [wipe iterations]"
+
+  exit 0
+end
+
+file_type = ARGV.shift
+file_name = ARGV.shift
+size = ARGV.shift || 9
+repair_iterations = ARGV.shift || 500
+wipe_iterations = ARGV.shift || 100
+
+sudoku = nil
+
+if file_type == 'dot'
+  sudoku = FileReader::from_dots_file file_name, size
+elsif file_type == 'regular'
+  sudoku = FileReader.from_regular_file file_name, size
+else
+  puts "Invalid file type. Valid types are:"
+  puts " *dot"
+  puts " *regular"
+
+  exit 1
+end
+
+solver = SDO.new sudoku, size, repair_iterations, wipe_iterations
+
+unless solver.valid?
+  puts "Sudoku is empty"
+
+  exit 1
+end
+
+solution = solver.solve
+
+puts "Solucion final"
+puts solution

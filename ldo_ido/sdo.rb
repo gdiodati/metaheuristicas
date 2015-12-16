@@ -1,84 +1,96 @@
 require_relative 'sudoku_graph'
 require_relative 'node'
 
-def dsatur(sudoku)
-  total_nodes = sudoku.vertices.size
-  colored_nodes = sudoku.vertices.select(&:colored?).size
-  node_index = nil
+class SDO
+  def initialize(sudoku, size = 9, repair_iterations = 500, wipe_iterations = 100)
+    @sudoku = sudoku
+    @size = size
+    @repair_iterations = repair_iterations
+    @wipe_iterations = wipe_iterations
+  end
 
-  while colored_nodes < total_nodes
-    max = -1
+  def valid?
+    !@sudoku.nil?
+  end
 
-    # SDO
-    vertices = sudoku.vertices.reject(&:colored?).shuffle.sort
+  def solve
+    dsatur @sudoku
 
-    vertices.each_with_index do |node, i|
-      # unless node.colored?
+    puts "Conflictos iniciales: #{@sudoku.conflictive_nodes.size}"
+
+    @wipe_iterations.times do |x|
+      @sudoku = repair @sudoku
+
+      if @sudoku.solved?
+        puts "Iterations: #{x}"
+        break
+      end
+
+      @sudoku.wipe
+      dsatur @sudoku
+    end
+
+    @sudoku
+  end
+
+  private
+
+  def dsatur(sudoku)
+    total_nodes = sudoku.vertices.size
+    colored_nodes = sudoku.vertices.select(&:colored?).size
+    node_index = nil
+
+    while colored_nodes < total_nodes
+      max = -1
+
+      # SDO
+      vertices = sudoku.vertices.reject(&:colored?).shuffle.sort
+
+      vertices.each_with_index do |node, i|
         sd = node.saturation_degree
 
         if sd >= max
           max = sd
           node_index = vertices[i]
         end
-      # end
 
-      if node_index && !node_index.colored?
-        node_index.assign_first_possible_color
-        colored_nodes += 1
+        if node_index && !node_index.colored?
+          node_index.assign_first_possible_color
+          colored_nodes += 1
+        end
       end
     end
+
+    sudoku
   end
 
-  sudoku
-end
+  def repair(sudoku, iterations = 500)
+    min = sudoku.conflictive_nodes.size
+    min_s = sudoku.dup
 
-def repair(sudoku, count = 500)
-  min = sudoku.conflictive_nodes.size
-  min_s = sudoku.dup
+    iterations.times do |x|
+      amount_conflictive_nodes = sudoku.conflictive_nodes.size
 
-  count.times do |x|
-    amount_conflictive_nodes = sudoku.conflictive_nodes.size
+      if amount_conflictive_nodes.zero?
+        min_s = sudoku.dup
+        break
+      end
 
-    if amount_conflictive_nodes.zero?
-      min_s = sudoku.dup
-      break
+      sudoku.conflictive_nodes.each do |cn|
+        sudoku.resolve_conflict cn
+      end
+
+      dsatur sudoku
+
+      if amount_conflictive_nodes < min
+        min = amount_conflictive_nodes
+        min_s = sudoku.dup
+
+        puts "Bajamos los conflictos a: #{min}"
+      end
+
     end
 
-    sudoku.conflictive_nodes.each do |cn|
-      sudoku.resolve_conflict cn
-    end
-
-    dsatur sudoku
-
-    if amount_conflictive_nodes < min
-      min = amount_conflictive_nodes
-      min_s = sudoku.dup
-
-      puts "Bajamos los conflictos a: #{min}"
-    end
-
+    min_s
   end
-
-  sudoku = min_s
 end
-
-# 'input/s08a.txt'
-a = SudokuGraph.from_file(ARGV[0]);
-
-dsatur a
-puts "Conflictos iniciales: #{a.conflictive_nodes.size}"
-
-100.times do |x|
-  a = repair a
-
-  if a.solved?
-    puts "Iterations: #{x}"
-    break
-  end
-
-  a.wipe
-  dsatur a
-end
-
-puts "Solucion Final"
-puts a

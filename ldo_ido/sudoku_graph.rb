@@ -12,18 +12,6 @@ class SudokuGraph
     @matrix = Matrix.build(size) { |row, col| Node.new self, row, col }
   end
 
-  def self.from_file(path, size = 9)
-    sudoku = new size
-
-    File.open(path).each_with_index do |line, row|
-      line.split(' ').each_with_index do |color, col|
-        sudoku[row, col].fix_color(color.to_i) unless color.to_i.zero?
-      end
-    end
-
-    sudoku
-  end
-
   def [](r,c)
     @matrix[r,c]
   end
@@ -34,29 +22,6 @@ class SudokuGraph
 
   def conflictive_nodes
     vertices.select(&:conflict?)
-  end
-
-  def horizontal_for(node)
-    @matrix.row(node.row).to_a
-  end
-
-  def vertical_for(node)
-    @matrix.column(node.col).to_a
-  end
-
-  def block_for(node)
-    start_row = node.row - (node.row % @limit)
-    start_col = node.col - (node.col % @limit)
-
-    block = []
-
-    @limit.times do |row|
-      @limit.times do |col|
-        block << @matrix[row + start_row, col + start_col]
-      end
-    end
-
-    block
   end
 
   def resolve_conflict(node)
@@ -81,14 +46,6 @@ class SudokuGraph
     self
   end
 
-  def possible_colors_from(array1, array2)
-    colors = ->(nodes) { nodes.map(&:color) }
-
-    intersection = colors.call(array1) & colors.call(array2)
-
-    (1..size).to_a - intersection
-  end
-
   def wipe(amount = 3)
     to_wipe = []
 
@@ -96,17 +53,10 @@ class SudokuGraph
     to_wipe += @matrix.column_vectors.select { |nodes| sum_colors(nodes) != 45 }
 
     to_wipe.shuffle.take(amount).each {|ns| wipe_nodes ns }
-    # wipe_nodes to_wipe.sample
-    # wipe_nodes to_wipe.sample
 
     self
   end
 
-  def wipe_nodes(nodes)
-    nodes.each {|n| n.color = nil}
-
-    self
-  end
   # Given it is a Sudoku graph, all the nodes has the same degree
   def degree(node)
     2 * (@size - 1) + (@limit - 1) ** 2
@@ -122,8 +72,8 @@ class SudokuGraph
 
   def inspect
     horizonal_separator = "-" + "-".rjust(4) * (@size + @limit -2) + "\n"
-
-    str = "<SudokuGraph:#{@size} conflictive:#{conflictive_nodes.size}> \n"
+    fixed = vertices.select(&:fixed?).size
+    str = "<SudokuGraph:#{@size} conflictive:#{conflictive_nodes.size} fixed:#{fixed}> \n"
 
     @matrix.row_vectors.each_with_index do |row, idx|
       print_row = row.to_a.map(&:color).map! { |e| e.to_s.rjust(3) }
@@ -164,7 +114,7 @@ class SudokuGraph
   def dup
     dup_sudoku = SudokuGraph.new @size
     dup_sudoku.vertices.each do |node|
-      node.color = self[*node.coords].color
+      node.copy self[*node.coords]
     end
 
     dup_sudoku
@@ -185,10 +135,45 @@ class SudokuGraph
     nodes.select(&:fixed?).map(&:color)
   end
 
+  def possible_colors_from(array1, array2)
+    colors = ->(nodes) { nodes.map(&:color) }
+
+    intersection = colors.call(array1) & colors.call(array2)
+
+    (1..size).to_a - intersection
+  end
+
+  def horizontal_for(node)
+    @matrix.row(node.row).to_a
+  end
+
+  def vertical_for(node)
+    @matrix.column(node.col).to_a
+  end
+
+  def block_for(node)
+    start_row = node.row - (node.row % @limit)
+    start_col = node.col - (node.col % @limit)
+
+    block = []
+
+    @limit.times do |row|
+      @limit.times do |col|
+        block << @matrix[row + start_row, col + start_col]
+      end
+    end
+
+    block
+  end
+
+
   def sum_colors(nodes)
     nodes.to_a.map(&:color).compact.reduce(:+)
   end
 
+  def wipe_nodes(nodes)
+    nodes.each {|n| n.color = nil}
 
+    self
+  end
 end
-
