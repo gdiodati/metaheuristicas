@@ -46,7 +46,11 @@ class Node
   end
 
   def conflict?
-    colored? && !@fixed && @color > graph.size
+    base = colored? && !@fixed
+    greater_color = base && @color > graph.size
+    repeated = base && adjacent_colors.include?(@color)
+
+    greater_color || repeated
   end
 
   def fixed?
