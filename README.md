@@ -22,3 +22,8 @@
 
 - http://lipas.uwasa.fi/~timan/sudoku
 
+## Getting Started
+
+```bash
+./solver file_path [sudoku size] [repair iterations] [wipe iterations]
+```
