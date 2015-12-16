@@ -30,6 +30,13 @@ class Node
     @fixed = true
   end
 
+  def copy(other_node)
+    @color = other_node.color
+    @fixed = other_node.fixed?
+
+    self
+  end
+
   def color=(color)
     @color = color unless @fixed
   end
@@ -55,7 +62,7 @@ class Node
 
     possible_colors = (1..k).to_a - adjacent_colors
 
-    @color = possible_colors.empty? ? rand(k) + 100 : possible_colors.first
+    self.color = possible_colors.empty? ? rand(k) + 100 : possible_colors.first
   end
 
   def inspect
