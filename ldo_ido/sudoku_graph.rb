@@ -37,10 +37,15 @@ class SudokuGraph
 
     colors, conflictive_adjacents = intersections.find { |n| !n.first.empty? }
 
-    node.color = colors.first
-    conflictive_adjacents -= [node]
+    if colors.nil?
+      # It means there is no combination of 2 sets to get 1 color.
+      # So I clear out all the block
+      conflictive_adjacents = b
+    else
+      node.color = colors.first
+      conflictive_adjacents -= [node]
+    end
 
-    conflict_node = conflictive_adjacents.detect { |n| n.color == node.color }
     conflictive_adjacents.each{|n| n.color = nil}
 
     self
@@ -52,7 +57,7 @@ class SudokuGraph
     to_wipe += @matrix.row_vectors.select { |nodes| sum_colors(nodes) != 45 }
     to_wipe += @matrix.column_vectors.select { |nodes| sum_colors(nodes) != 45 }
 
-    to_wipe.shuffle.take(amount).each {|ns| wipe_nodes ns }
+    to_wipe.shuffle.take(amount).each { |ns| wipe_nodes ns }
 
     self
   end

@@ -2,11 +2,12 @@ require_relative 'sudoku_graph'
 require_relative 'node'
 
 class SDO
-  def initialize(sudoku, size = 9, repair_iterations = 500, wipe_iterations = 100)
+  def initialize(sudoku, size = 9, repair_iterations = 500, wipe_iterations = 100, wipe_sets_amount = 3)
     @sudoku = sudoku
     @size = size
     @repair_iterations = repair_iterations
     @wipe_iterations = wipe_iterations
+    @wipe_sets_amount = wipe_sets_amount
   end
 
   def valid?
@@ -19,6 +20,9 @@ class SDO
     puts "Conflictos iniciales: #{@sudoku.conflictive_nodes.size}"
 
     @wipe_iterations.times do |x|
+      @sudoku.wipe @wipe_sets_amount
+      dsatur @sudoku
+
       @sudoku = repair @sudoku
 
       if @sudoku.solved?
@@ -26,8 +30,6 @@ class SDO
         break
       end
 
-      @sudoku.wipe
-      dsatur @sudoku
     end
 
     @sudoku
@@ -76,19 +78,19 @@ class SDO
         break
       end
 
-      sudoku.conflictive_nodes.each do |cn|
-        sudoku.resolve_conflict cn
-      end
-
-      dsatur sudoku
-
       if amount_conflictive_nodes < min
         min = amount_conflictive_nodes
         min_s = sudoku.dup
 
         puts "Bajamos los conflictos a: #{min}"
+        # Si volvemos al minimo, tarda 13m 
       end
 
+      sudoku.conflictive_nodes.each do |cn|
+        sudoku.resolve_conflict cn
+      end
+
+      dsatur sudoku
     end
 
     min_s
