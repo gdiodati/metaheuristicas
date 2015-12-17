@@ -438,7 +438,7 @@ void solve_sudoku()
 int main()
 {
 	std::ifstream file;
-	std::string test = "ws34e.txt";
+	std::string test = "ankala.txt";
 	
 	file.open(TESTS_PATH + test);
 
