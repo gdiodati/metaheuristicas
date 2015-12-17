@@ -22,14 +22,6 @@ typedef std::vector<Line> Grid;
 typedef std::vector<Grid> Cube;
 
 
-
-
-
-
-
-
-
-
 //Global variables
 auto gmaxselected = 0;
 auto maxselected = 0;
@@ -42,7 +34,7 @@ auto ants = 600;
 
 
 //Input Grid
-Grid a;
+Grid a = Grid(9, Line(9, -1));
 
 //Ant State
 Grid digit_row;
@@ -150,11 +142,14 @@ void print_sudoku(Grid& sudoku)
 void print_sudoku()
 {
 	//Print b
+	std::cout << "Actual solution (Selections: " << selected << " )" << std::endl;
 	print_sudoku(b);
 
-	std::cout << "Last solucion founded" << std::endl << std::endl;
-
+	std::cout << "Last solucion founded by an Ant: (Selection: " << maxselected << " )" << std::endl << std::endl;
 	print_sudoku(mb);
+
+	std::cout << "Last solucion founded by a group of Ants: (Selection: " << gmaxselected << " )" << std::endl << std::endl;
+	print_sudoku(gmb);
 }
 
 void solve_sudoku()
@@ -168,8 +163,6 @@ void solve_sudoku()
 	t = Cube(9, Grid(9, Line(9, 1000)));
 	for (auto cycle = 0; cycle < cycles; cycle++)
 	{
-		a = Grid(9, Line(9, -1));;
-
 		maxselected = 0;
 		for (auto ant = 0; ant < ants; ant++)
 		{
@@ -209,6 +202,7 @@ void solve_sudoku()
 
 			while (can_select)
 			{
+				auto initial_selected = selected; 
 				auto d_selected = true;
 				auto one_done = false;
 
@@ -375,11 +369,15 @@ void solve_sudoku()
 
 
 				if (selected == 81) can_select = 0;
-				system("cls");
-				std::cout << "Cycle: " << cycle << " of " << cycles << std::endl;
-				std::cout << "Ant: " << ant << " of " << ants << std::endl;
-				std::cout << "Selected: " << selected << std::endl << std::endl;
-				print_sudoku();
+				
+				if (selected != initial_selected)
+				{
+					system("cls");
+					std::cout << "Cycle: " << cycle << " of " << cycles << std::endl;
+					std::cout << "Ant: " << ant << " of " << ants << std::endl;
+					std::cout << "Selected: " << selected << std::endl << std::endl << std::endl;
+					print_sudoku();
+				}
 
 			}
 
@@ -392,6 +390,7 @@ void solve_sudoku()
 			if (selected == 81)
 			{
 				int stop = 1;
+				break;
 			}
 
 			if (selected > maxselected)
@@ -422,12 +421,35 @@ void solve_sudoku()
 			gmaxselected = selected;
 			gmb = mb;
 		}
+
+		if (selected == 81)
+		{
+			break;
+		}
 	}
 }
 
+#include <fstream>
+
+#if defined(_DEBUG) || defined(NDEBUG) 
+#define TESTS_PATH "../local_tests/"
+#endif
+
 int main()
 {
+	std::ifstream file;
+	std::string test = "ws34e.txt";
 	
+	file.open(TESTS_PATH + test);
+
+	int v = -1;
+	For2(i, 9, j, 9)
+	{
+		file >> v;
+		a[i][j] = v-1;
+	}
+
+	//print_sudoku(a);
 	solve_sudoku();
 	
 }
