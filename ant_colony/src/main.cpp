@@ -310,7 +310,7 @@ void solve_sudoku()
 						{
 							p[i][j][k] = w[i][j][k] / sumW;
 							sumP += p[i][j][k];
-							if (maxP < p[i][j][k])
+                            if (maxP < p[i][j][k] && std::find(not_selected_pos.begin(), not_selected_pos.end(), std::make_tuple(i,j)) != not_selected_pos.end())
 							{
 								maxP = p[i][j][k];
 							}
@@ -431,14 +431,14 @@ void solve_sudoku()
 
 #include <fstream>
 
-#if defined(_DEBUG) || defined(NDEBUG) 
+//#if defined(_DEBUG) || defined(NDEBUG)
 #define TESTS_PATH "../local_tests/"
-#endif
+//#endif
 
 int main()
 {
 	std::ifstream file;
-	std::string test = "ankala.txt";
+	std::string test = "s16.txt";
 	
 	file.open(TESTS_PATH + test);
 
