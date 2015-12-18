@@ -8,22 +8,19 @@
 \usepackage[colorlinks]{hyperref}
 \usepackage{fancyvrb}
 
-
 \bibliographystyle{unsrt}
 
 \input{preambulo}
 
-\hyphenation{ob-te-ner}
+
 
 \begin{document}
 
 \input{caratula}
-
-%\tableofcontents
 \tableofcontents
 \pagebreak
 
-%\pagebreak
+
 \section{Resumen}
 En el siguiente trabajo práctico resolveremos un problema NP-Completo llamado
 Sudoku. Mostraremos una estrategia de resolución exacta y una metaheurística
@@ -35,8 +32,8 @@ metaheurística.
 \label{sec:intro}
 
 El juego \emph{Sudoku} es un rompecabezas lógico que trata la ubicación de
-números en una grilla de $N^2 x N^2$. Este tiene celdas con valores ya fijados y
-el objetivo es completar las celdas
+números en una grilla de $N^2 x N^2$. Este tiene celdas con valores ya fijados,
+llamados \textit{pistas}, y el objetivo es completar las celdas
 faltantes con valores de $1..N^2$. La grilla se subdivide en $N$ cuadrantes de
 $N x N$  y se debe completar cumpliendo con las siguientes reglas:
 
@@ -49,190 +46,199 @@ $N x N$  y se debe completar cumpliendo con las siguientes reglas:
 \end{enumerate}
 
 Un ejemplo de este tipo de problemas tan conocido se observa en la tabla
-\ref{tab:sudoku_ejemplo}
+\ref{img:sudoku}
+
 
 \begin{figure}[H]
-    \begin{center}
-        \begin{tabular}{||c | c | c|| c| c| c|| c| c| c||}
-            \hline
-            \hline
-            &   &   &   &   &   &   &   &   \\
-            \hline
-            &   &   & 4 &   &   & 3 &   &   \\
-            \hline
-            6 &   &   &   &   & 7 &   &   &   \\
-            \hline
-            \hline
-            & 5 &   &   &   & 4 &   &   &   \\
-            \hline
-            4 &   &   &   & 1 &   &   &   & 5 \\
-            \hline
-            & 3 & 1 & 7 &   & 9 & 8 &   &   \\
-            \hline
-            \hline
-            &   & 3 &   &   &   &   & 5 &   \\
-            \hline
-            & 6 &   & 8 &   &   & 4 &   & 9 \\
-            \hline
-            9 & 8 &   &   & 7 &   & 1 & 6 &   \\
-            \hline
-            \hline
-
-        \end{tabular}
-        \label{tab:sudoku_ejemplo}
-        \caption{Sudoku ejemplo}
-    \end{center}
+	\centering
+	\includegraphics[scale=0.6]{./img/sudoku.png}
+	\caption{Sudoku ejemplo}
+	\label{img:sudoku}
 \end{figure}
 
-
-La resolución de este problema aplicando reglas lógicas se puede ver en los
-metodos Swordfish  o X-Wings.
-
-Notoriamente en los últimos tiempos, han surgido diversos métodos para resolver
-de manera heurística el problema.
+Durante los últimos tiempos, han surgido diversos métodos para resolver
+de manera heurística el problema dada su complejidad.
 
 Los métodos de resolución exacta para este problema con \emph{Fuerza bruta}
-consiste en asignar posibles valores iterativamente a las celdas e ir
-verificando si el sudoku verifica las reglas a medida que se siguen completando
+consisten en asignar posibles valores iterativamente a las celdas e ir
+verificando si el sudoku cumple las reglas a medida que se siguen completando
 los blancos.
 
-Este esquema es costoso y a menudo se utiliza con backtracking.
+Este algoritmo de resolución es costoso y a menudo se utiliza con backtracking.
 
 
 En la actualidad se han encontrado avances en la resolución de Sudoku utilizando
-algorítmos genéticos \cite{mantere2007solving}, Búsqueda harmónica
-\cite{geem2007harmony}, SAT-Solving \cite{lynce2006sudoku} y finalmente
-Simulated Annealing \cite{lewis2007metaheuristics}.
+algorítmos genéticos \cite{mantere}, Búsqueda harmónica
+\cite{harmony} y Ant Colony \cite{ant_colony} entre otros.
+
+Para este trabajo práctico, implementamos una metaheurística de Ant Colony, y una
+de búsqueda local, que transforma el Sudoku en un problema de coloreo de grafos y
+luego utiliza DSatur\cite{dsatur} como heurística.
 
 
-En este trabajo nos centraremos en un acercamiento de búsqueda local comparando
-los métodos Búsqueda local\cite{aarts2003local} y Threshold
-Accepting\cite{dueck1990threshold} con lo expresado por el autor de
-\cite{lewis2007metaheuristics}.
-
-\section{Búsqueda Local}
+\section{Búsqueda Local - DSatur}
 
 Supongamos que tenemos un problema al que queremos encontrarle una solución
-óptima, este problema toma diversos parámetros y ante cada instanciación
-devuelve una solución que puede ser correcta en terminos de las restricciones
-del problema, puede ser óptima en terminos de ser la mejor solucion, o puede ser
-ni una ni la otra. En este último caso, deberemos evaluar si siguiendo por esa
+óptima, este problema toma diversos parámetros y por cada instancia
+devuelve una solución que puede ser correcta en términos de las restricciones
+del problema, puede ser óptima en términos de ser la mejor solución, o puede ser
+ninguna de las anteriores. En este último caso, evaluaremos si siguiendo por esa
 solución parcial del problema alcanzaremos una solución que sea a la vez
 correcta y óptima.
-
-Las soluciones factibles definen el espacio de soluciones que verifican ciertas
-condiciones, dentro de las que nos mantendremos sin violar las restricciones del
-problema.
 
 Una solución óptima puede no ser siempre alcanzable y en ese caso se busca la
 mejor solución. Se dice que una solución $S_1$ es mejor que solución $S_2$ si
 dada una función objetivo  que toma instancias de solución nos permite
 compararlas para determinar si una es mejor que la otra.
+
 \begin{equation}
     f(S_1) < f(S_2) 
 \end{equation}
-
-Para poder recorrer el espacio de soluciones del problema, definimos una función
-de vecindad que dada una solución inicial $S_i$ del problema nos devuelve una
-solución $S$.
 
 
 El método de Búsqueda local entonces, itera sobre el espacio de soluciones
 buscando en cada paso obtener una mejor solución parcial hasta alcanzar un
 mínimo. Luego de la estabilización, este se detiene.
 
-¿Qué sucede si el método no alcanzó el mínimo absoluto? Este estanca
+¿Qué sucede si el método no alcanzó el mínimo absoluto? Este se estanca
 en una solución que no se encuentra cercana al valor óptimo y terminará
 arrojando un mínimo local.
 
-Es por este motivo que se determinan optimizaciones a Búsqueda Local, como
-pueden ser Simmulating annealing, Hill Climbing, Tabú Search o Threshold
-Accepting.
-
-\emph{Threshold Accepting} en contraposición a \emph{Búsqueda Local} permite
-movimientos a soluciones cuya función objetivo no necesariamente mejora. Esto le
-permite salir de los mínimos locales. Al igual que en búsqueda local, es
-necesario definir la función objetivo y la función para obtener el próximo
-vecino, pero también requiere definir los umbrales ante los cuales se aceptan
-evaluaciones de la función de objetivo que son peores a la solución actual.
-A medida que pasan las iteraciones, el valor umbral disminuye haciendo que el
-algoritmo se comporte identicamente a búsqueda local.
-
+\clearpage
 
 \section{Desarrollo}
 
 
-En la sección anterior discutimos dos metaheurísticas de búsqueda local, ambas
-precisan la definición de la función objetivo y la función de vecindad.
+En la sección anterior presentamos la noción de una metaheurística de búsqueda local.
+Ahora necesitamos definir como transformamos el problema de resolver un Sudoku
+a un problema de coloreo de grafos.
+Ademas, definiremos la función objetivo y la función de vecindad.
+Para todos los casos, utilizamos los Sudoku de $ 9x9 $.
+
+REVISAR 
+
+\subsection{Transformación}
+\label{sec:transformacion}
+
+La transformación es bastante trivial, cada celda del Sudoku es representada por
+un nodo en el Grafo, y la fila, columna y el subcuadrante asociado son los nodos
+adyacentes como muestra \ref{img:adyacentes}.
 
 
-Ahora daremos definiciones para ellas:
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.5]{./img/adyacentes.png}
+    \caption{Nodos adyacentes}
+    \label{img:adyacentes}
+\end{figure}
+
+Esta es la estructura básica del grafo, luego tenemos que transformar las pistas
+(números que vienen fijos) en colores de manera unívoca. \ref{img:color_map}.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.5]{./img/numero_color.png}
+    \caption{Asociación de Pistas a Colores}
+    \label{img:color_map}
+\end{figure}
+
+\clearpage
+
+Con esto, ya contamos con el grafo inicial \ref{img:grafo_inicial} y podemos
+comenzar a colorearlo con el algoritmo que elegimos.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.5]{./img/grafo_inicial.png}
+    \caption{Grafo Inicial}
+    \label{img:grafo_inicial}
+\end{figure}
+
+A su vez, de este grafo podemos extraer varias propiedades:
+
+\begin{itemize}
+	\item 81 nodos
+	\item Clique Máxima: 9
+	\item Todo nodo pertenece a una clique máxima
+	\item $ grado(n_i) = 20 $
+	\item $ \chi(G) = 9 $
+\end{itemize}
 
 
-\subsection{Solución inicial}
+\subsection{Algoritmo}
 
-Nuestra solución inicial está definida de manera que no se rompa la regla 3
-definida en las reglas de sudoku. De esta manera asignaremos valores del 1 al
-$N^2$ en cada cuadrante de $NxN$ sin que se repitan.
+Los algoritmos de coloreo secuencial, también conocidos como coloreo goloso van seleccionando un nodo
+de acuerdo a algún criterio específico, formando así un \emph{orden} de coloración.
+Luego, en cada nodo lo van coloreando con un color que no tienen sus vecinos.
+ 
+El orden en que se seleccionan los nodos afectan a la coloración, así que un buen orden de
+vértices puede traducirse en una buena coloración. No hay ninguna forma de obtener la solución óptima,
+sino que, se aplica el algoritmo de coloración secuencial varias veces hasta obtener la coloración válida.
+ 
+​Los algoritmos de coloreo secuencial proponen las siguientes variantes:
+ 
+\begin{itemize}
+	\item \emph{Largest Degree Ordering (LDO)} - Los vértices son ordenados en orden descendente de acuerdo a su grado. La idea aquí  es que los vértices de mayor grado serán más difíciles de colorear al último, y por eso se colorean primero.
+	\item \emph{Saturation Degree Ordering (SDO)} - A diferencia de \emph{LDO} donde el orden de los vértices se determina de antemano, aquí los vértices son seleccionados durante el proceso de coloración. En saturación, el vértice con el grado de saturación más alta se selecciona para ser el próximo a colorear. El grado de saturación de un vértice es el número de colores diferentes usados por sus vecinos. La idea es seleccionar el vértice que está más restringido.
+	\item \emph{Incidence Degree Ordering (IDO)} - Es una modificación de \emph{SDO}, el grado de incidencia de un nodo esta definido como el número de vértices adyacentes coloreados.
+\end{itemize}
+ 
 
-Así buscaremos mejorar nuestra solución hasta que se cumplan las reglas 1 y 2. 
+\subsection{Solución inicial - \emph{SDO}}
+
+Nuestra solución inicial está definida de manera de elegir los nodos con
+grado de saturación más alto primero, y asignarles el primer color disponible.
 
 \begin{Verbatim}[samepage=true]
-function(mat){
-  // Iteramos por subcuadrantes en una matriz de 9x9
-  for(i in c(1,4,7)){ 
-    for (j in c(1,4,7)){
-      square = mat[seq(i,i+(N-1)),seq(j,j+(N-1))]
-      used_nums = square[square>0] // obtenemos las celdas utilizadas
-      all_nums = 1:N2
-      // nos quedamos con los numeros faltantes en el subcuadrante
-      fillers = all_nums[!all_nums %in% used_nums] 
-      // Asignamos a los
-      // valores en 0, una permitación al azar de los numeros sin usar
-      square[square == 0] = sample(fillers, length(fillers)) 
-      // Reemplazamos el subcuadrante
-      mat[seq(i,i+(N-1)),seq(j,j+(N-1))] = square 
+while (ColoredNodes < 81) {
+  for all the nodes {
+    node = NodeWithMaxSaturatedDegree
+
+    if not colored(node) {
+      AssignFirstAvailableColor(node)
+  	  ColoredNodes = ColoredNodes + 1
     }
   }
-  return(mat)
 }
-    
 \end{Verbatim}
 
+\subsection{Nodos Conflictivos}
 
+Dado que es un algoritmo goloso, es altamente probable que no de una solución optima.
+En los casos que no se pueda asignar un color, o un número del 1-9, el algoritmo
+utiliza números mas grandes, y continua buscando una solución.
+
+Decimos que un nodo es conflictivo si cumple la siguiente condición:
+
+\begin{equation}
+    hasColor \wedge isNotAClue \wedge ( color > 9 \vee adjacentUsesSameColor)
+\end{equation}
+
+%%%%Cuando arrojamos una solución con nodos conflictivos, hacemos una búsqueda local
 
 \subsection{Función objetivo}
 
-Definiremos la función objetivo como la suma de la cantidad de elementos
-repetidos por fila y columna.  
+Definiremos la función objetivo como la suma de la cantidad de nodos conflictivos. 
 Esta función vale cero cuando la solución del sudoku es correcta.
 
-
-Definimos la función delta de la siguiente manera. Toma un vector de valores y
-devuelve la cantidad de elementos repetidos.
+Definimos la función objetivo de la siguiente manera: 
 
 \begin{Verbatim}[samepage=true]
-delta = function (x) {
-    length(x) - length(unique(x))
-} 
-\end{Verbatim}
+for node in SudokuNodes {
+  if Conflictive(node)
+    count++
+}
 
-Entonces la función objetivo se define como la suma de la función delta para
-cada fila y para cada columna de la siguiente manera:
-
-\begin{Verbatim}[samepage=true]
-function(mat){ 
-  colum = apply(mat, POR_COLUMNAS, delta)
-  rows = apply(mat, POR_FILAS, delta)
-  return(sum(colum + rows))
-} 
+return count
 \end{Verbatim}
 
 
 \subsection{Función de vecindad}
 
-Definimos nuestra función de vecindad que toma una matriz sudoku como fue
-definida en \ref{sec:intro}.
+Definimos nuestra función de vecindad que toma un Sudoku como fue
+definido en \ref{sec:transformacion}.
+
+
 Intercambiaremos un valor (seleccionado al azar) dentro de la matriz por otro
 dentro del mismo cuadrante, también seleccionado al azar. Tendremos cuidado en
 no intercambiar los valores que ya vinieron fijos en el sudoku de entrada.
@@ -258,8 +264,12 @@ function(mat){
     
 \end{Verbatim}
 
-\subsection{Casos de prueba}
 
+\clearpage
+
+\section{Casos de prueba - HACER !!!}
+
+DEJO ESTE TEXTO COMO EJEMPLO
 
 Para evaluar el comportamiento de ambos algorítmos utilizamos casos de prueba
 generados con la aplicación \emph{qqwing}\footnote{\url{http://qqwing.com/}}. Este nos permite generar tableros
@@ -290,7 +300,7 @@ todos los valores que se han obtenido están en un entorno cercano a la solució
 
 \begin{center}
     \begin{figure}
-        \includegraphics[width=\textwidth]{imgs/problemas_easy_histo.png}
+        \includegraphics[width=\textwidth]{./imgs/problemas_easy_histo.png}
         \caption{Histograma asignación Búsqueda local (LS) y Threshold
         Accepting (TA) para el conjunto de problemas fácil)}
         \label{img:histo_easy}
@@ -298,7 +308,7 @@ todos los valores que se han obtenido están en un entorno cercano a la solució
 \end{center}
 \begin{center}
     \begin{figure}
-        \includegraphics[width=\textwidth]{imgs/problemas_med_histo.png}
+        \includegraphics[width=\textwidth]{./imgs/problemas_med_histo.png}
         \caption{Histograma asignación Búsqueda local (LS) y Threshold
         Accepting (TA) para el conjunto de problemas mediano}
         \label{img:histo_med}
@@ -306,7 +316,7 @@ todos los valores que se han obtenido están en un entorno cercano a la solució
 \end{center}
 \begin{center}
     \begin{figure}
-        \includegraphics[width=\textwidth]{imgs/problemas_hard_histo.png}
+        \includegraphics[width=\textwidth]{./imgs/problemas_hard_histo.png}
         \caption{Histograma asignación Búsqueda local (LS) y Threshold
         Accepting (TA) para el conjunto de problemas difícil}
         \label{img:histo_hard}
@@ -319,11 +329,11 @@ mayor. Cosa que no se reproduce en \ref{img:histo_easy} ni en
 resolución del problema (en términos lógico deductivos) sino más bien en la
 distribución de los vecinos.
 
-Si observamos el comportamiento de los algorítmos con un tablero fijo y variando
+Si observamos el comportamiento de los algoritmos con un tablero fijo y variando
 la cantidad de iteraciones que precisa para alcanzar el óptimo obtenemos las
 figuras \ref{img:prog_ls} y \ref{img:prog_ta}. Para esto se generaron 50
-corridas de asignacion variando la cantidad de iteraciones admitidas para el
-algorítmo de 100 a 3000.
+corridas de asignación variando la cantidad de iteraciones admitidas para el
+algoritmo de 100 a 3000.
 
 Las figuras presentan las medias y varianzas observacionales de los
 experimentos.
@@ -331,7 +341,7 @@ experimentos.
 
 \begin{center}
     \begin{figure}[H]
-        \includegraphics[width=\textwidth]{imgs/BLsol_progresion.png}
+        \includegraphics[width=\textwidth]{./imgs/BLsol_progresion.png}
         \caption{Progresión de parámetro máxima cantidad de iteraciones para Búsqueda Local}
         \label{img:prog_ls}
     \end{figure}
@@ -340,26 +350,24 @@ experimentos.
 
 \begin{center}
     \begin{figure}[H]
-        \includegraphics[width=\textwidth]{imgs/TAsol_progresion.png}
+        \includegraphics[width=\textwidth]{./imgs/TAsol_progresion.png}
         \caption{Progresión de parámetro máxima cantidad de iteraciones para
         Threshold Accepting}
         \label{img:prog_ta}
     \end{figure}
 \end{center}
 
-Determinamos que los algorítmos se estabilizan luego de las 3000 iteraciones
+Determinamos que los algoritmos se estabilizan luego de las 3000 iteraciones
 aunque la varianza para la asignación es muy elevada. Esto nos indica que el
 espacio de soluciones es muy grande y por lo tanto en algunos casos los mínimos locales
-alcanzados son dificiles de sobrellevar.
+alcanzados son difíciles de sobrellevar.
 
 
 
 \section{Discusión}
 
 En este trabajo experimentamos con la resolución del problema de Sudoku con dos
-heurísticas distintas de búsqueda local. Utilizamos el esquema \textit{puro} de
-búsqueda local y una modificación \emph{Threshold Accepting} para contrastar los
-resultados y medir la eficacia de cada algorítmo.
+heurísticas distintas: de búsqueda local y Ant Colony.
 
 Encontramos que Threshold Accepting resuelve más instancias del problema que
 Búsqueda local con una penalidad en cantidad de operaciones.
@@ -367,11 +375,12 @@ Búsqueda local con una penalidad en cantidad de operaciones.
 Encontramos que no hay relación entre la dificultad de resolver los problemas de
 manera lógico deductivo con la resolución algorítmica utilizando estos métodos.
 
-La facilidad de implementación de estos algorítmos los hacen excelentes
+La facilidad de implementación de estos algoritmos los hacen excelentes
 candidatos para poder determinar una solución inicial para un problema
 combinatorio de estas características. Sin embargo es probable que no encuentren
 el mínimo global dado las limitaciones que presentan en su diseño.
 
+\clearpage
 
 \bibliography{citas}
 
