@@ -167,9 +167,9 @@ Luego, en cada nodo lo van coloreando con un color que no tienen sus vecinos.
 El orden en que se seleccionan los nodos afectan a la coloración, así que un buen orden de
 vértices puede traducirse en una buena coloración. No hay ninguna forma de obtener la solución óptima,
 sino que, se aplica el algoritmo de coloración secuencial varias veces hasta obtener la coloración válida.
- 
-​Los algoritmos de coloreo secuencial proponen las siguientes variantes.
- 
+
+Los algoritmos de colores secuencial proponen las siguiente variantes:
+
 \begin{itemize}
 	\item \emph{Largest Degree Ordering (LDO)} - Los vértices son ordenados en orden descendente de acuerdo a su grado. La idea aquí  es que los vértices de mayor grado serán más difíciles de colorear al último, y por eso se colorean primero.
 	\item \emph{Saturation Degree Ordering (SDO)} - A diferencia de \emph{LDO} donde el orden de los vértices se determina de antemano, aquí los vértices son seleccionados durante el proceso de coloración. En saturación, el vértice con el grado de saturación más alta se selecciona para ser el próximo a colorear. El grado de saturación de un vértice es el número de colores diferentes usados por sus vecinos. La idea es seleccionar el vértice que está más restringido.
@@ -308,6 +308,121 @@ algoritmo.
 
 
 \section{Ant Colony}
+
+Es una meta heurística de la familia de PSO (Particle Swarm Optimization) basada en el comportamiento en grupo 
+de las hormigas para definir el camino a un recurso deseado.
+
+La meta heuristica general consiste de lo siguiente:
+
+En principio, todas las hormigas se mueven de manera aleatoria, buscando por si solas un camino 
+al recurso que están buscando (una posible solución)
+
+Una vez encontrada una solución, las hormigas vuelven dejando un rastro de feromonas, 
+este rastro puede ser mayor o menor dependiendo de lo buena que sea la solución encontrada.
+Además, este mecanismo es utilizado para compartir información entre todas las hormigas de la colonia 
+dado que su valor aumenta las probabilidades de que una siguiente hormiga siga sus pasos.
+
+Esta feromona además tiene un factor de evaporación, esto produce que los caminos pierdan su 
+fuerza de atracción, cuanto más largos sea el camino, más tiempo demorará una hormiga en recorrerlo, 
+más se evaporará la feromona y por ende serán menos frecuentados, por su parte los caminos más cortos 
+(o más óptimos) tendrán mayor cantidad de feromonas, por ende, mayor probabilidad de ser frecuentados.
+
+\section{Ant Colony para Sudoku}
+
+La solución (u objetivo) se establece como un tablero de 9x9 posiciones, todo número que pertenece a la 
+solución debe cumplir las tres reglas de Sudoku. Nos obstante pueden existir posiciones vacías sin ningún valor.
+
+Puede verse a la solución S de Sudoku, entonces, como un conjunto de duplas: [posición, digito]. En donde no pueden
+existir posiciones repetidas y tampoco pueden existir un par de posiciones cuyos valores rompan las condiciones de 
+las reglas de Sudoku.
+
+Además, existe un tablero T, de tres dimensiones, 9x9x9. En este tablero se representan las posibles soluciones
+que van encontrando las hormigas y será utilizado para depositar el valor de feromona de cada elemento de acuerdo
+a como este pueda o no ser parte de la solución final.
+
+Tomar en cuenta que este tablero no tiene en cuenta las permutaciones de los elementos, solamente sirve como guia 
+para cada hormiga al momento de tener que realizar una elección para su siguiente paso.
+
+Al principio del algoritmo, todos los elemento de T tiene un valor máximo de feromona. A medida que las hormigas
+realizan su trabajo, van depositando para cada dupla [posición, dígito] un valor de feromona de acuerdo a cuando buena fue
+la solución que incluye a esa dupla.
+
+El algoritmo está compuesto por dos ciclos principales anidados, uno para repetir el trabajo en conjunto 
+de todas las hormigas y otro para que cada hormiga realice su trabajo individualmente.
+
+El ciclo interno es el que corre por cada hormiga. Estas intentan individualmente encontrar 
+la mejor solución posible utilizando únicamente el nivel de feromona depositado por el conjunto de hormigas anterior. 
+
+Cada vez que las hormigas terminan su trabajo, se guarda la mejor solución comparada contra la encontrada por la hormiga anterior. 
+Al momento en el que todas las hormigas finalizan su trabajo, se evalua la mejor solucion encontrada y se deposita un nivel de 
+feromona igual para cada dupla [posición, dígito] en el tablero T, al mismo tiempo que se evapora un cierto porcentaje.
+
+Con el objetivo de encontrar una solución al problema, cada hormiga selecciona el próximo ítem 
+a ser agregado a la solución con una probabilidad:
+
+\begin{equation}
+	p(j) = t_j n_j / \sum\limits_{i=1}^n t_i n_i	
+\end{equation}
+
+Donde $t_j$ expresa la cantidad de feromona depositada en el elemento j de la solución y $n_j$ expresa el nivel de interés de agregar 
+el elemento j a la solución S, que se detallará más adelante.
+
+Además, para el caso del Sudoku, se considera que los elementos deben cumplir con las restricciones del juego, es decir, 
+no puede elegirse un digito que ya exista en la fila, columna o subgrilla de la posición a la que se lo quiere agregar. 
+En ese caso se considera que la probabilidad de elegirlo es cero.
+
+\section{El trabajo de cada hormiga}
+
+Al principio del trabajo de cada hormiga, está puede encontrar que existan posiciones a las cuales únicamente pueda asignarles 
+un dígito entre las nueve opciones iniciales.
+
+//AGREGAR DIBUJO EJEMPLO
+
+Tambien puede ocurrir que para ciertos dígitos posibles que puede tomar una posición de la solución, exista una subgrilla tal que 
+solamente posea una única posición en la que pueda contener este dígito.
+
+//AGREGAR DIBUJO EJEMPLO
+
+Cuando alguna de estas dos situaciones ocurre, estos valores son asignados inmediatamente.
+
+Finalmente, y si no ocurrió ninguna de las situaciones previamente mencionadas, la hormiga toma la siguiente posición de acuerdo 
+a una probabilidad. Esta probabilidad depende tanto del nivel de feromona como de la composición de la solución que está formando la hormiga.
+
+Lo que la hormona realiza es ponderar aquellas posiciones y dígitos de acuerdo a lo siguiente:
+
+\begin{itemize}
+	\item Cantidad de dígitos que puedo agregar a una posición
+	\item Cantidad de posiciones en los que puedo agregar un dígito dentro de la subgrilla a la que pertenece dicha posición
+\end{itemize}
+
+En función de tal selección, para cada posición y digito (i,j,k) realiza lo siguiente:
+
+\begin{equation}
+	p(i,j,k)=(10-places(i,j,k))*(10-digits(i,j))	
+\end{equation}
+
+En donde:
+
+\begin{itemize}
+	\item places: Es la función que calcula la cantidad de lugares donde puedo colocar al dígito k en la subgrilla a la que pertenece la posición (i,j)
+	\item digits: Es la función que dada una posición (i,j) me devuelve la cantidad de colores que puedo colocar en dicha posición
+\end{itemize}
+
+
+Una vez que todas las hormigas realizan su trabajo, se deja un rastro de feromona de acuerdo a cuan buena fue la solución encontrada entre todas.
+
+Este cálculo se realiza comparando a la solución encontrada con la solución ideal, dividiendo la cantidad de selecciones que deberían 
+haber hecho para encontrar la solución ideal con la cantidad de selecciones realizadas efectivamente.
+
+Una selección es una posición dentro de la solución con un valor asignado distinto de cero.
+
+La actualización de la feromona queda de la siguiente manera:
+
+\begin{equation}
+	dt=mayorSeleccion/81
+\end{equation}
+
+Y por último se realiza la evaporización de la feromona de acuerdo a un valor fijado al comienzo del algoritmo.
 
 
 
