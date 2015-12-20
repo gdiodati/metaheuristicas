@@ -68,7 +68,7 @@ Este algoritmo de resolución es costoso y a menudo se utiliza con backtracking.
 
 
 En la actualidad se han encontrado avances en la resolución de Sudoku utilizando
-algorítmos genéticos \cite{mantere}, Búsqueda harmónica
+algoritmos genéticos \cite{mantere}, Búsqueda armónica
 \cite{harmony} y Ant Colony \cite{ant_colony} entre otros.
 
 Para este trabajo práctico, implementamos una metaheurística de Ant Colony, y una
@@ -134,8 +134,6 @@ Esta es la estructura básica del grafo, luego tenemos que transformar las pista
     \caption{Asociación de Pistas a Colores}
     \label{img:color_map}
 \end{figure}
-
-%\clearpage
 
 Con esto, ya contamos con el grafo inicial \ref{img:grafo_inicial} y podemos
 comenzar a colorearlo con el algoritmo que elegimos.
@@ -234,7 +232,7 @@ definido en \ref{sec:transformacion}.
 Intercambiaremos los nodos conflictivos con el color más probable a ser correcto,
 y removiendo el color de los nodos que entran en conflicto con este nuevo coloreo.
 Tendremos cuidado de no intercambiar los colores con los ya fijados (\emph{pistas})
-por el Sudoku de entrada, pues no producirían una solució válida.
+por el Sudoku de entrada, pues no producirían una solución válida.
 De esta manera, nos vamos moviendo en un conjunto de soluciones cercanas, reduciendo
 la cantidad de nodos conflictivos, hasta quedarnos con la mínima.
 A esta parte del algoritmo la llamamos \emph{repair}.
@@ -263,6 +261,7 @@ para alejarse de un mínimo local.
 Un número muy grande, incrementa el tiempo de ejecución del algoritmo y uno muy pequeño
 no recorre distintas vecindades y se queda con los mínimos locales.
 
+
 \subsubsection{REPAIR ITERATIONS}
 
 Una iteración de \emph{repair}, implica intentar resolver los nodos conflictivos de
@@ -280,28 +279,52 @@ Cada vez que tenemos que hacer un \emph{wipeout} al Sudoku, queremos borrar algu
 columnas enteras que contienen nodos conflictivos, para alejarnos de los mínimos locales.
 Éste parámetro justamente indica la cantidad de estos a borrar.
 
-La particularidad de este valor, es que esta acotado entre: 
+La particularidad de este valor, es que esta acotado por: 
 
+\begin{equation}
+	1 \leq SETS\_TO\_WIPEOUT \leq 18
+\end{equation}
+
+Las consecuencias de elegir un número muy alto hacen que se aleje más de la solución parcial,
+y por el contrario, mientras más chico es el número, más parecida es a la solución parcial.
+Si bien la intención del proceso \emph{wipeout} es alejarse de un mínimo local, y poder ampliar
+la búsqueda por otra vecindad, encontramos que un valor alto para éste parámetro es perjudicial
+para el algoritmo, pues por lo general la solución parcial tiene 2 o 3 nodos conflictivos nada más.
+Si borramos gran parte del Sudoku, aumentamos la posibilidad de generar más conflictos y como
+consecuencia, el algoritmo le toma mucho más tiempo converger a una solución. Incluso, para
+Sudokus donde terminaba en menos de 10 segundos, con valores entre 6 y 11 el algoritmo no
+terminó en varias ocaciones.
+
+\subsubsection{Valores seleccionados}
+
+Los mejores resultados, tanto de tiempo como de Sudokus resueltos fueron en estos intervalos:
+
+\begin{itemize}
+	\item \emph{WIPEOUT ITERATIONS} $\in [35, 70]$
+	\item \emph{REPAIR ITERATIONS} $\in [70, 95]$
+	\item \emph{SETS TO WIPEOUT} $\in [3, 5]$
+\end{itemize}
 
 \subsection{Algoritmo}
 
 Luego de haber explicado los detalles, podemos describir en alto nivel como funciona nuestro
 algoritmo.
 
+
 \begin{verbatim}
-	forEach WIPEOUT_ITERATION {
-		dsatur @sudoku
+forEach WIPEOUT_ITERATION {
+  dsatur @sudoku
 		
-		forEach REPAIR_ITERATION {
-		  repair @sudoku  
-		}
-		
-		if solved {
-		  exit
-		} else {
-		  wipeout @sudoku, SETS_TO_WIPEOUT
-		}		  
-	}
+  forEach REPAIR_ITERATION {
+    repair @sudoku  
+  }
+
+  if solved {
+    exit
+  } else {
+    wipeout @sudoku, SETS_TO_WIPEOUT
+  }
+}
 \end{verbatim}
 
 \clearpage
