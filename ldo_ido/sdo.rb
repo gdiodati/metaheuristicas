@@ -20,16 +20,16 @@ class SDO
     puts "Conflictos iniciales: #{@sudoku.conflictive_nodes.size}"
 
     @wipe_iterations.times do |x|
-      @sudoku.wipe @wipe_sets_amount
-      dsatur @sudoku
 
       @sudoku = repair @sudoku
 
       if @sudoku.solved?
         puts "Iterations: #{x}"
         break
+      else
+        @sudoku.wipe @wipe_sets_amount
+        dsatur @sudoku
       end
-
     end
 
     @sudoku

@@ -104,18 +104,11 @@ mínimo. Luego de la estabilización, este se detiene.
 en una solución que no se encuentra cercana al valor óptimo y terminará
 arrojando un mínimo local.
 
-\clearpage
 
-\section{Desarrollo}
-
-
-En la sección anterior presentamos la noción de una metaheurística de búsqueda local.
 Ahora necesitamos definir como transformamos el problema de resolver un Sudoku
 a un problema de coloreo de grafos.
-Ademas, definiremos la función objetivo y la función de vecindad.
+Ademas, definiremos la función objetivo, la función de vecindad y los parámetros.
 Para todos los casos, utilizamos los Sudoku de $ 9x9 $.
-
-REVISAR 
 
 \subsection{Transformación}
 \label{sec:transformacion}
@@ -135,14 +128,14 @@ adyacentes como muestra \ref{img:adyacentes}.
 Esta es la estructura básica del grafo, luego tenemos que transformar las pistas
 (números que vienen fijos) en colores de manera unívoca. \ref{img:color_map}.
 
-\begin{figure}[h]
+\begin{figure}
 	\centering
 	\includegraphics[scale=0.5]{./img/numero_color.png}
     \caption{Asociación de Pistas a Colores}
     \label{img:color_map}
 \end{figure}
 
-\clearpage
+%\clearpage
 
 Con esto, ya contamos con el grafo inicial \ref{img:grafo_inicial} y podemos
 comenzar a colorearlo con el algoritmo que elegimos.
@@ -165,7 +158,7 @@ A su vez, de este grafo podemos extraer varias propiedades:
 \end{itemize}
 
 
-\subsection{Algoritmo}
+\subsection{Solución Inicial}
 
 Los algoritmos de coloreo secuencial, también conocidos como coloreo goloso van seleccionando un nodo
 de acuerdo a algún criterio específico, formando así un \emph{orden} de coloración.
@@ -175,7 +168,7 @@ El orden en que se seleccionan los nodos afectan a la coloración, así que un b
 vértices puede traducirse en una buena coloración. No hay ninguna forma de obtener la solución óptima,
 sino que, se aplica el algoritmo de coloración secuencial varias veces hasta obtener la coloración válida.
  
-​Los algoritmos de coloreo secuencial proponen las siguientes variantes:
+​Los algoritmos de coloreo secuencial proponen las siguientes variantes.
  
 \begin{itemize}
 	\item \emph{Largest Degree Ordering (LDO)} - Los vértices son ordenados en orden descendente de acuerdo a su grado. La idea aquí  es que los vértices de mayor grado serán más difíciles de colorear al último, y por eso se colorean primero.
@@ -184,7 +177,7 @@ sino que, se aplica el algoritmo de coloración secuencial varias veces hasta ob
 \end{itemize}
  
 
-\subsection{Solución inicial - \emph{SDO}}
+\subsection{\emph{SDO}}
 
 Nuestra solución inicial está definida de manera de elegir los nodos con
 grado de saturación más alto primero, y asignarles el primer color disponible.
@@ -196,7 +189,7 @@ while (ColoredNodes < 81) {
 
     if not colored(node) {
       AssignFirstAvailableColor(node)
-  	  ColoredNodes = ColoredNodes + 1
+      ColoredNodes = ColoredNodes + 1
     }
   }
 }
@@ -233,36 +226,89 @@ return count
 \end{Verbatim}
 
 
-\subsection{Función de vecindad}
+\subsection{Función de Vecindad - Repair/Wipeout}
 
 Definimos nuestra función de vecindad que toma un Sudoku como fue
 definido en \ref{sec:transformacion}.
 
+Intercambiaremos los nodos conflictivos con el color más probable a ser correcto,
+y removiendo el color de los nodos que entran en conflicto con este nuevo coloreo.
+Tendremos cuidado de no intercambiar los colores con los ya fijados (\emph{pistas})
+por el Sudoku de entrada, pues no producirían una solució válida.
+De esta manera, nos vamos moviendo en un conjunto de soluciones cercanas, reduciendo
+la cantidad de nodos conflictivos, hasta quedarnos con la mínima.
+A esta parte del algoritmo la llamamos \emph{repair}.
 
-Intercambiaremos un valor (seleccionado al azar) dentro de la matriz por otro
-dentro del mismo cuadrante, también seleccionado al azar. Tendremos cuidado en
-no intercambiar los valores que ya vinieron fijos en el sudoku de entrada.
+Para evitar quedarnos en un mínimo local, luego del \emph{repair}, si la solución
+sigue teniendo \textit{nodos conflictivos} pasamos a la fase de \emph{wipeout}.
 
-\begin{Verbatim}[samepage=true]
-function(mat){
-  // obtenemos dos indices al azar dentro del rango de la matriz
-  i_j = sample(1:N2, 2) 
-  // Otenemos dos indices al azar dentro del mismo subcuadrante
-  l_k = get_next_index(i_j)
-  // si son iguales o es una celda fija generamos otro par de indices
-  if(all(i_j == l_k) | is_fixed(i_j)){
-    return(gen_neighbourgh(mat))
-  }
-  // Si obtuvimos indices validos intercambiamos los valores y retornamos la
-  matriz
-  tmp = mat[i_j[1], i_j[2]]
-  mat[i_j[1], i_j[2]] = mat[l_k[1], l_k[2]]
-  mat[l_k[1], l_k[2]] = tmp
-  return(mat)
-}
+Ésta consiste en tomar una cantidad dada de filas o columnas que tengan nodos
+conflictivos y borrarlos por completo (sin sacar las pistas), para luego empezar
+desde el principio con \emph{dsatur}. Esta parte del algoritmo es esencial para escapar
+a los mínimos locales que podamos hallar con la \textit{reparación}.
 
-    
-\end{Verbatim}
+
+\subsection{Parámetros}
+
+En esta metaheurística, tenemos tres parámetros para ajustar el comportamiento de la misma.
+Describiremos a continuación cada uno, con sus implicancias y el valor elegido por nosotros.
+
+
+\subsubsection{WIPEOUT ITERATIONS}
+
+Este parámetro, representa las iteraciones totales de la metaheurística.
+Es decir, la cantidad de veces que va a borrar parte de la Solución parcial
+para alejarse de un mínimo local.
+
+Un número muy grande, incrementa el tiempo de ejecución del algoritmo y uno muy pequeño
+no recorre distintas vecindades y se queda con los mínimos locales.
+
+\subsubsection{REPAIR ITERATIONS}
+
+Una iteración de \emph{repair}, implica intentar resolver los nodos conflictivos de
+cada solución parcial y reducir la cantidad de los mismos. Es lo que se conoce como
+explorar la vecindad. Cada reparación puede agregar nuevos conflictos, pero sin modificar
+la solución de forma significativa.
+
+Por lo tanto un número muy grande, hace que la vecindad crezca también y se demore mucho
+tiempo explorando la misma, cuando mejores resultados se obtendrían volviendo a empezar.
+
+
+\subsubsection{SETS TO WIPEOUT}
+
+Cada vez que tenemos que hacer un \emph{wipeout} al Sudoku, queremos borrar algunas filas o
+columnas enteras que contienen nodos conflictivos, para alejarnos de los mínimos locales.
+Éste parámetro justamente indica la cantidad de estos a borrar.
+
+La particularidad de este valor, es que esta acotado entre: 
+
+
+\subsection{Algoritmo}
+
+Luego de haber explicado los detalles, podemos describir en alto nivel como funciona nuestro
+algoritmo.
+
+\begin{verbatim}
+	forEach WIPEOUT_ITERATION {
+		dsatur @sudoku
+		
+		forEach REPAIR_ITERATION {
+		  repair @sudoku  
+		}
+		
+		if solved {
+		  exit
+		} else {
+		  wipeout @sudoku, SETS_TO_WIPEOUT
+		}		  
+	}
+\end{verbatim}
+
+\clearpage
+
+
+\section{Ant Colony}
+
 
 
 \clearpage

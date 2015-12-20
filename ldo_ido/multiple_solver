@@ -1,0 +1,61 @@
+#!/usr/bin/env ruby
+#
+
+require_relative 'sdo'
+require_relative 'file_reader'
+
+if ARGV.empty?
+  puts "Usage: "
+  puts "\t./solver dir [repair iterations] [wipe iterations] [wipe sets amount]"
+
+  exit 0
+end
+
+dir = ARGV.shift
+size = 9
+repair_iterations = ARGV.shift.to_i || 500
+wipe_iterations = ARGV.shift.to_i || 100
+wipe_sets_amount = ARGV.shift.to_i || 3
+
+sudoku = nil
+
+Dir.foreach(dir) do |item|
+  next if item == '.' or item == '..'
+
+  file_name = "#{dir}/#{item}"
+  # Si empieza con s es regular, si empieza con 'u' es dotted
+  if item[0] == 'u'
+    sudoku = FileReader::from_dots_file file_name, size
+  else
+    sudoku = FileReader.from_regular_file file_name, size
+  end
+
+  solver = SDO.new sudoku, size, repair_iterations, wipe_iterations
+
+  unless solver.valid?
+    puts "Sudoku is empty"
+
+    exit 1
+  end
+
+  start = Time.now
+
+  solution = solver.solve
+
+  time = ((Time.now - start) * 1000).to_i
+
+  fixed = sudoku.vertices.select(&:fixed?).size
+  conflicts = solution.conflictive_nodes.size
+  categoria = "facil"
+  line = [categoria, item, fixed, conflicts, time].join(',')
+  `echo #{line} >> solutions.csv`
+
+  puts "Solucion final para: -------| #{item} |-------"
+  puts solution
+  puts "----------------------------------------------"
+
+
+end
+
+
+
