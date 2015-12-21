@@ -630,6 +630,38 @@ Luego de las pruebas realizadas notamos que el tiempo necesario para obtener una
 óptima (o una parcial), no depende del nivel de complejidad de los juegos.
 Nuestras presunciones eran erradas.
 
+\section{Casos de prueba - Ant Colony}
+
+Para el caso de los test con Ant Colony no incluiremos gráficos de porcentajes de problemas resueltos y
+no resueltos dado que logramos resolverlos todos.
+
+Entre los problemas que resolvimos, la mayoria los resolvió rápidamente, nunca demorando más de 5 minutos.
+
+En la mayoria de los problemas fáciles no se llegaba ni a la primera iteración de un ciclo
+principal de Ant Colony, es decir, el primer grupo de hormigas encontraba la solución.
+
+Esto es importante de notar dado que significa que el algoritmo está logrando encontrar la solución 
+partiendo desde la heurística de cada hormiga, sin compartir entre sí la feromona.
+Para problemas más avanzados ahi si se notó la utilización de 1 o más ciclos principales.
+
+Utilizamos estos problemas más avanzados para testear los distintos parametros del algoritmo. En particular
+nos interesó testear como afectaba la cantidad de hormigas y el nivel de feromona compartido entre ellas
+a la performance del algoritmo.
+
+Comenzamos evaluando cuanto se modificaban los tiempos para encontrar una solución aumentando 
+la cantidad de hormigas de 10 en 10 con una misma instancia (la más dificil de nuestro set de prueba)
+
+Los resultados son los siguientes:
+
+GRAFICO AQUI
+
+Posteriormente evaluamos que ocurria si decrementabamos la cantidad de feromona de 0.999 a 0.809 utilizando
+el mejor valor obtenido en la prueba anterior para la cantidad de hormigas.
+
+Los resultados son los siguientes:
+
+GRAFICO AQUI
+
 
 \section{Discusión}
 
@@ -647,6 +679,36 @@ La facilidad de implementación de estos algoritmos los hacen excelentes
 candidatos para poder determinar una solución inicial para un problema
 combinatorio de estas características. Sin embargo es probable que no encuentren
 el mínimo global dado las limitaciones que presentan en su diseño.
+
+
+Respecto a Ant Colony lo que notamos es que la cantidad de hormigas a utilizar para problemoas
+fácil afecta despreciablemente sobre el tiempo de ejecucición, dado que encuentra una solución con
+menos de 30 hormigas promedio.
+
+Por otro lado puede apreciarse una mayor relación respecto a la cantidad de hormigas que se 
+utilizan y su resultado en los tiempos de ejecución en problemas dificiles. Llegamos a que un valor
+adecuado seria de 75 hormigas para estos casos.
+
+En cuanto a las variaciones al factor de evaporizacion de la feromona, nuevamente para los casos fáciles
+este valor no afecta, dado que no llega a utilizarse la feromona en la busqueda de la solución optima.
+
+No obstante para los problemas más dificil, este valor toma mayor significancia, dado que al iterar más 
+de una vez, la feromona comienza a ser compartir y utilizada por las iteraciones posteriores de grupos
+de hormigas. En caso de tener un valor de evaporización de feromona inferior a los 0.95 el tiempo de
+convergencia e incluso la convergencia misma pueden resultar afectadas negativamente.
+
+Vale la pena mencionar que los resultados son distintos a los que se ven en el paper de donde tomamos
+la idea del algoritmo. Nuestra implementación resulto funcionar mucho más rápido en terminos de cantidad
+de ciclos y de hormigas.
+
+Creemos que estas diferencias pueden ser por dos cosas: 
+Por un lado podria ser que no probamos el mismo caso que fue evaluado en el paper. Si bien comparamos nuestras
+corridas con instancias de pruebas de la base de datos mencionada en el paper original, no supimos con exactitud 
+cuales fueron las instancias que demoraron el algoritmo tantos ciclos como se ve en las gráficas.
+Por otro lado pensamos que la diferencia pueda deberse a las diferencias de implementacion que pueden existir
+entre nuestra implementacion y la original, dado que varios detalles de la misma no se mencionan.
+
+Intentamos comunicarnos con quien escribio el paper para resolver estas dudas, pero no obtuvimos exito.
 
 \clearpage
 
