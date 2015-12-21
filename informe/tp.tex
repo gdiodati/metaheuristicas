@@ -602,6 +602,8 @@ categoría \emph{fácil} no iban a presentar dificultades en dicho proceso. Con 
 categorizados como dificultad \emph{media}, \emph{difícil} y \emph{ultra difícil} creímos que los algoritmos podrían
 acercarse a alguna solución pero conservar algunos conflictos.
 
+\subsubsection{Búsqueda Local - DSatur}
+
 \noindent
 \begin{minipage}{0.50\textwidth}
 	\includegraphics[width=\textwidth]{./graficos/conflictosFacil.png}
@@ -615,27 +617,17 @@ acercarse a alguna solución pero conservar algunos conflictos.
 \end{minipage}
 
 \begin{center}
-\includegraphics[width=0.5\textwidth]{./graficos/conflictosTodas.png}
+	\includegraphics[width=0.5\textwidth]{./graficos/conflictosTodas.png}
 \end{center}
 
 Como resultado de la experimentación podemos ver que aunque los casos en los que no se pudo
-calcular una solución se encuentran en mayor proporción en la categoría difícil y ultra difícil, en todas las
-categorías hubo instancias que presentaron conflictos.
+calcular una solución se encuentran en mayor proporción en la categoría \emph{difícil} y \emph{ultra difícil},
+en todas las categorías hubo instancias que presentaron conflictos.
 
-Con respecto al tiempo de procesamiento, creímos que a mayor dificultad, mayor sería la
-cantidad de cálculos a realizar por lo cual, los algoritmos tardarían más tiempo para encontrar
-una solución. Para estudiar este comportamiento corrimos los distintos casos de prueba tomando
-el tiempo de ejecución:
 
-\begin{center}
-	\includegraphics[width=0.8\textwidth]{./graficos/categoriaVsTiempo.png}
-\end{center}
+\clearpage
 
-Luego de las pruebas realizadas notamos que el tiempo necesario para obtener una solución
-óptima (o una parcial), no depende del nivel de complejidad de los juegos.
-Nuestras presunciones eran erradas.
-
-\section{Casos de prueba - Ant Colony}
+\subsection{Ant Colony}
 
 Para el caso de los test con Ant Colony no incluiremos gráficos de porcentajes de problemas resueltos y
 no resueltos dado que logramos resolverlos todos.
@@ -658,15 +650,24 @@ la cantidad de hormigas de 10 en 10 con una misma instancia (la más difícil de
 
 Los resultados son los siguientes:
 
-GRAFICO AQUI
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.6]{./img/tiempohormigas.png}
+	\caption{Tiempo / Hormigas}
+\end{figure}
+
 
 Posteriormente evaluamos que ocurría si decrementábamos la cantidad de feromona de $0.999$ a
 $0.809$ utilizando el mejor valor obtenido en la prueba anterior para la cantidad de hormigas.
 
 Los resultados son los siguientes:
 
-GRAFICO AQUI
-
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.6]{./img/feromona_tiempo.png}
+	\caption{Feromona / Tiempo}
+\end{figure}
+\clearpage
 
 \section{Discusión}
 
