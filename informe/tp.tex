@@ -13,19 +13,11 @@
 \input{preambulo}
 
 
-
 \begin{document}
 
 \input{caratula}
 \tableofcontents
 \pagebreak
-
-
-\section{Resumen}
-En el siguiente trabajo práctico resolveremos un problema NP-Completo llamado
-Sudoku. Mostraremos una estrategia de resolución exacta y una metaheurística
-para resolver el problema. Finalmente mostraremos los resultados de aplicar la
-metaheurística.
 
 
 \section{Introducción}
@@ -45,8 +37,7 @@ $N x N$  y se debe completar cumpliendo con las siguientes reglas:
     \item Cada subcuadrante de $NxN$ debe tener los valores de 1 a N una única vez
 \end{enumerate}
 
-Un ejemplo de este tipo de problemas tan conocido se observa en la tabla
-\ref{img:sudoku}
+Un ejemplo de este tipo de problemas tan conocido se observa en la figura \ref{img:sudoku}
 
 
 \begin{figure}[H]
@@ -56,19 +47,17 @@ Un ejemplo de este tipo de problemas tan conocido se observa en la tabla
 	\label{img:sudoku}
 \end{figure}
 
-Durante los últimos tiempos, han surgido diversos métodos para resolver
-de manera heurística el problema dada su complejidad.
+Dado que es un problema NP-Completo, durante los últimos tiempos, han surgido
+diversos métodos para resolver de manera heurística el problema dada su complejidad.
 
 Los métodos de resolución exacta para este problema con \emph{Fuerza bruta}
 consisten en asignar posibles valores iterativamente a las celdas e ir
-verificando si el sudoku cumple las reglas a medida que se siguen completando
-los blancos.
-
-Este algoritmo de resolución es costoso y a menudo se utiliza con backtracking.
+verificando si el Sudoku cumple las reglas a medida que se siguen completando
+los blancos. Este algoritmo de resolución es costoso y a menudo se utiliza con backtracking.
 
 
 En la actualidad se han encontrado avances en la resolución de Sudoku utilizando
-algoritmos genéticos \cite{mantere}, Búsqueda armónica
+algoritmos genéticos \cite{genetic}, Búsqueda armónica
 \cite{harmony} y Ant Colony \cite{ant_colony} entre otros.
 
 Para este trabajo práctico, implementamos una metaheurística de Ant Colony, y una
@@ -115,7 +104,7 @@ Para todos los casos, utilizamos los Sudoku de $ 9x9 $.
 
 La transformación es bastante trivial, cada celda del Sudoku es representada por
 un nodo en el Grafo, y la fila, columna y el subcuadrante asociado son los nodos
-adyacentes como muestra \ref{img:adyacentes}.
+adyacentes como muestra la figura \ref{img:adyacentes}.
 
 
 \begin{figure}[h]
@@ -126,14 +115,16 @@ adyacentes como muestra \ref{img:adyacentes}.
 \end{figure}
 
 Esta es la estructura básica del grafo, luego tenemos que transformar las pistas
-(números que vienen fijos) en colores de manera unívoca. \ref{img:color_map}.
+(números que vienen fijos) en colores de manera unívoca (figura \ref{img:color_map}).
 
-\begin{figure}
+\begin{figure}[b]
 	\centering
 	\includegraphics[scale=0.5]{./img/numero_color.png}
     \caption{Asociación de Pistas a Colores}
     \label{img:color_map}
 \end{figure}
+
+\clearpage
 
 Con esto, ya contamos con el grafo inicial \ref{img:grafo_inicial} y podemos
 comenzar a colorearlo con el algoritmo que elegimos.
@@ -160,13 +151,13 @@ A su vez, de este grafo podemos extraer varias propiedades:
 
 Los algoritmos de coloreo secuencial, también conocidos como coloreo goloso van seleccionando un nodo
 de acuerdo a algún criterio específico, formando así un \emph{orden} de coloración.
-Luego, en cada nodo lo van coloreando con un color que no tienen sus vecinos.
+Luego, a cada nodo lo van coloreando con un color que no tienen sus vecinos.
  
-El orden en que se seleccionan los nodos afectan a la coloración, así que un buen orden de
+El orden en que se seleccionan los nodos afectan al coloreo, así que un buen orden de
 vértices puede traducirse en una buena coloración. No hay ninguna forma de obtener la solución óptima,
-sino que, se aplica el algoritmo de coloración secuencial varias veces hasta obtener la coloración válida.
+sino que, se aplica el algoritmo de coloreo secuencial varias veces hasta obtener la coloración válida.
 
-Los algoritmos de colores secuencial proponen las siguiente variantes:
+Los algoritmos de coloreo secuencial proponen las siguiente variantes:
 
 \begin{itemize}
 	\item \emph{Largest Degree Ordering (LDO)} - Los vértices son ordenados en orden descendente de acuerdo a su grado. La idea aquí  es que los vértices de mayor grado serán más difíciles de colorear al último, y por eso se colorean primero.
@@ -175,10 +166,10 @@ Los algoritmos de colores secuencial proponen las siguiente variantes:
 \end{itemize}
  
 
-\subsection{\emph{SDO}}
+\subsection{SDO}
 
 Nuestra solución inicial está definida de manera de elegir los nodos con
-grado de saturación más alto primero, y asignarles el primer color disponible.
+grado de saturación más alto primero, y asignarles el primer color disponible \cite{sdo_ldo}.
 
 \begin{Verbatim}[samepage=true]
 while (ColoredNodes < 81) {
@@ -195,7 +186,7 @@ while (ColoredNodes < 81) {
 
 \subsection{Nodos Conflictivos}
 
-Dado que es un algoritmo goloso, es altamente probable que no de una solución optima.
+Dado que es un algoritmo goloso, es altamente probable que no de una solución óptima.
 En los casos que no se pueda asignar un color, o un número del 1-9, el algoritmo
 utiliza números mas grandes, y continua buscando una solución.
 
@@ -210,9 +201,8 @@ Decimos que un nodo es conflictivo si cumple la siguiente condición:
 \subsection{Función objetivo}
 
 Definiremos la función objetivo como la suma de la cantidad de nodos conflictivos. 
-Esta función vale cero cuando la solución del sudoku es correcta.
-
-Definimos la función objetivo de la siguiente manera: 
+Esta función vale cero cuando la solución del sudoku es correcta, y justamente queremos
+buscar una solución que la minimice.
 
 \begin{Verbatim}[samepage=true]
 for node in SudokuNodes {
@@ -332,21 +322,21 @@ forEach WIPEOUT_ITERATION {
 
 \section{Ant Colony}
 
-Es una meta heurística de la familia de PSO (Particle Swarm Optimization) basada en el comportamiento en grupo 
-de las hormigas para definir el camino a un recurso deseado.
+Es una metaheurística de la familia de PSO (Particle Swarm Optimization) basada en el
+comportamiento en grupo de las hormigas para definir el camino a un recurso deseado.
 
-La meta heurística general consiste de lo siguiente:
+La metaheurística general consiste de lo siguiente:
 
-En principio, todas las hormigas se mueven de manera aleatoria, buscando por si solas un camino 
-al recurso que están buscando (una posible solución)
+En principio, todas las hormigas se mueven de manera aleatoria, buscando por si solas
+un camino al recurso que están buscando (una posible solución).
 
 Una vez encontrada una solución, la hormiga vuelve dejando un rastro de feromonas, 
 este rastro puede ser mayor o menor dependiendo de lo buena que sea la solución encontrada.
 Utilizando este rastro de feromonas, las hormigas pueden compartir información entre sus distintos 
 pares en la colonia. 
 
-Cuando una nueva hormiga inicia su trabajo, es influenciada por la feromona depositada por las hormigas 
-anteriores, y así aumenta las probabilidades de que esta siga los pasos de sus anteriores al acercarse 
+Cuando una nueva hormiga inicia su trabajo, es influenciada por la feromona depositada por las hormigas
+anteriores, y así aumenta las probabilidades de que esta siga los pasos de sus anteriores al acercarse
 a un recurso previamente encontrado.
 
 \begin{figure}
@@ -356,12 +346,12 @@ a un recurso previamente encontrado.
 	\label{img:ants}
 \end{figure}
 
-Esta feromona además tiene un factor de evaporación, esto produce que los caminos pierdan su 
-fuerza de atracción, cuanto más largos sea el camino, más tiempo demorará una hormiga en recorrerlo, 
-más se evaporará la feromona y por ende serán menos frecuentados, por su parte los caminos más cortos 
+Esta feromona además tiene un factor de evaporación, esto produce que los caminos pierdan su
+fuerza de atracción, cuanto más largos sea el camino, más tiempo demorará una hormiga en recorrerlo,
+más se evaporará la feromona y por ende serán menos frecuentados, por su parte los caminos más cortos
 (o más óptimos) tendrán mayor cantidad de feromonas, por ende, mayor probabilidad de ser frecuentados.\ref{img:ants}.
 
-En computación podemos expandir este concepto biologico de interoperabilidad entre las hormigas, para construir
+En computación podemos expandir este concepto biológico de interoperabilidad entre las hormigas, para construir
 y combinar distintas soluciones parciales a un problema. En particular utilizaremos este concepto para
 resolver el problema de Sudoku, el cual será representado como una grilla de 9x9 con ciertas restricciones que se
 detallarán en breve.
@@ -371,33 +361,37 @@ detallarán en breve.
 Nuestra implementación está fuertemente basada en el paper de Krzysztof Schif, tomando decisión sobre algunas
 cuestiones que no estaban debidamente cubiertas por el documento o que parecian ambiguas.
 
-La solución (u objetivo) se establece como un tablero de 9x9 posiciones, todo número que pertenece a la 
-solución debe cumplir las tres reglas de Sudoku. Nos obstante pueden existir posiciones vacías sin ningún valor.
+La solución (u objetivo) se establece como un tablero de 9x9 posiciones, todo número que
+pertenece a la solución debe cumplir las tres reglas de Sudoku. Nos obstante pueden existir
+posiciones vacías sin ningún valor.
 
-Puede verse a la solución S de Sudoku, entonces, como un conjunto de duplas: [posición, dígito]. En donde no pueden
-existir posiciones repetidas y tampoco pueden existir un par de posiciones cuyos valores rompan las condiciones de 
-las reglas de Sudoku.
+Puede verse a la solución S de Sudoku, entonces, como un conjunto de duplas: [posición, dígito].
+En donde no pueden existir posiciones repetidas y tampoco pueden existir un par de posiciones
+cuyos valores rompan las condiciones de las reglas de Sudoku.
 
-Además, existe un tablero T, de tres dimensiones, 9x9x9. En este tablero se representan las posibles soluciones
-que van encontrando las hormigas y será utilizado para depositar el valor de feromona de cada elemento de acuerdo
-a como este pueda o no ser parte de la solución final.
+Además, existe un tablero T, de tres dimensiones, 9x9x9. En este tablero se representan las
+posibles soluciones que van encontrando las hormigas y será utilizado para depositar el valor
+de feromona de cada elemento de acuerdo a como este pueda o no ser parte de la solución final.
 
-Tomar en cuenta que este tablero no tiene en cuenta las permutaciones de los elementos, solamente sirve como guía 
-para cada hormiga al momento de tener que realizar una elección para su siguiente paso.
+Tomar en cuenta que este tablero no tiene en cuenta las permutaciones de los elementos,
+solamente sirve como guía para cada hormiga al momento de tener que realizar una elección
+para su siguiente paso.
 
-Al principio del algoritmo, todos los elemento de T tiene un valor máximo de feromona. A medida que las hormigas
-realizan su trabajo, van depositando para cada dupla [posición, dígito] un valor de feromona de acuerdo a cuando buena fue
-la solución que incluye a esa dupla.
+Al principio del algoritmo, todos los elemento de T tiene un valor máximo de feromona. A medida
+que las hormigas realizan su trabajo, van depositando para cada dupla [posición, dígito] un valor
+de feromona de acuerdo a cuando buena fue la solución que incluye a esa dupla.
 
-El algoritmo está compuesto por dos ciclos principales anidados, uno para repetir el trabajo en conjunto 
-de todas las hormigas y otro para que cada hormiga realice su trabajo individualmente.
+El algoritmo está compuesto por dos ciclos principales anidados, uno para repetir el trabajo en
+conjunto de todas las hormigas y otro para que cada hormiga realice su trabajo individualmente.
 
-El ciclo interno es el que corre por cada hormiga. Estas intentan individualmente encontrar 
-la mejor solución posible utilizando únicamente el nivel de feromona depositado por el conjunto de hormigas anterior. 
+El ciclo interno es el que corre por cada hormiga. Estas intentan individualmente encontrar la
+mejor solución posible utilizando únicamente el nivel de feromona depositado por el conjunto
+de hormigas anterior. 
 
-Cada vez que las hormigas terminan su trabajo, se guarda la mejor solución comparada contra la encontrada por la hormiga anterior. 
-Al momento en el que todas las hormigas finalizan su trabajo, se evalúa la mejor solución encontrada y se deposita un nivel de 
-feromona igual para cada dupla [posición, dígito] en el tablero T, al mismo tiempo que se evapora un cierto porcentaje.
+Cada vez que las hormigas terminan su trabajo, se guarda la mejor solución comparada contra la
+encontrada por la hormiga anterior. Al momento en el que todas las hormigas finalizan su trabajo,
+se evalúa la mejor solución encontrada y se deposita un nivel de feromona igual para cada dupla
+\emph{[posición, dígito]} en el tablero T, al mismo tiempo que se evapora un cierto porcentaje.
 
 Con el objetivo de encontrar una solución al problema, cada hormiga selecciona el próximo ítem 
 a ser agregado a la solución con una probabilidad:
@@ -406,12 +400,12 @@ a ser agregado a la solución con una probabilidad:
 	p(j) = \dfrac{t_j n_j}{\sum\limits_{i=1}^n t_i n_i}
 \end{equation}
 
-Donde $t_j$ expresa la cantidad de feromona depositada en el elemento j de la solución y $n_j$ expresa el nivel de interés de agregar 
-el elemento j a la solución S, que se detallará más adelante.
+Donde $t_j$ expresa la cantidad de feromona depositada en el elemento j de la solución y $n_j$
+expresa el nivel de interés de agregar el elemento j a la solución S, que se detallará más adelante.
 
-Además, para el caso del Sudoku, se considera que los elementos deben cumplir con las restricciones del juego, es decir, 
-no puede elegirse un dígito que ya exista en la fila, columna o subgrilla de la posición a la que se lo quiere agregar. 
-En ese caso se considera que la probabilidad de elegirlo es cero.
+Además, para el caso del Sudoku, se considera que los elementos deben cumplir con las restricciones
+del juego, es decir, no puede elegirse un dígito que ya exista en la fila, columna o subgrilla de la
+posición a la que se lo quiere agregar. En ese caso se considera que la probabilidad de elegirlo es cero.
 
 \subsection{El trabajo de cada hormiga}
 
@@ -425,7 +419,6 @@ un dígito entre las nueve opciones iniciales.\ref{img:soloundigito}.
 	\label{img:soloundigito}
 \end{figure}
 
-
 También puede ocurrir que para ciertos dígitos posibles que puede tomar una posición de la solución, exista una subgrilla tal que 
 solamente posea una única posición en la que pueda contener este dígito.\ref{img:undigitosolo}.
 
@@ -438,17 +431,19 @@ solamente posea una única posición en la que pueda contener este dígito.\ref{
 
 Cuando alguna de estas dos situaciones ocurre, estos valores son asignados inmediatamente.
 
-Finalmente, y si no ocurrió ninguna de las situaciones previamente mencionadas, la hormiga toma la siguiente posición de acuerdo 
-a una probabilidad. Esta probabilidad depende tanto del nivel de feromona como de la composición de la solución que está formando la hormiga.
+Finalmente, y si no ocurrió ninguna de las situaciones previamente mencionadas, la hormiga toma la
+siguiente posición de acuerdo a una probabilidad. Esta probabilidad depende tanto del nivel de feromona
+como de la composición de la solución que está formando la hormiga.
 
 Lo que la hormona realiza es ponderar aquellas posiciones y dígitos de acuerdo a lo siguiente:
 
 \begin{itemize}
 	\item Cantidad de dígitos que puedo agregar a una posición
-	\item Cantidad de posiciones en los que puedo agregar un dígito dentro de la subgrilla a la que pertenece dicha posición
+	\item Cantidad de posiciones en los que puedo agregar un dígito dentro de la subgrilla a la que
+		  pertenece dicha posición
 \end{itemize}
 
-En función de tal selección, para cada posición y dígito (i,j,k) realiza lo siguiente:
+En función de tal selección, para cada posición y dígito $(i,j,k)$ realiza lo siguiente:
 
 \begin{equation}
 	p(i,j,k)=(10-places(i,j,k))*(10-digits(i,j))
@@ -457,16 +452,20 @@ En función de tal selección, para cada posición y dígito (i,j,k) realiza lo 
 En donde:
 
 \begin{itemize}
-	\item places: Es la función que calcula la cantidad de lugares donde puedo colocar al dígito k en la subgrilla a la que pertenece la posición (i,j)
-	\item digits: Es la función que dada una posición (i,j) me devuelve la cantidad de colores que puedo colocar en dicha posición
+	\item \emph{places}: Es la función que calcula la cantidad de lugares donde puedo colocar al
+		  dígito \emph{k} en la subgrilla a la que pertenece la posición $(i,j)$
+	\item \emph{digits}: Es la función que dada una posición $(i,j)$ me devuelve la cantidad de
+	      colores que puedo colocar en dicha posición
 \end{itemize}
 
 \subsection{Actualización de feromona}
 
-Una vez que todas las hormigas realizan su trabajo, se deja un rastro de feromona de acuerdo a cuan buena fue la solución encontrada entre todas.
+Una vez que todas las hormigas realizan su trabajo, se deja un rastro de feromona de acuerdo a cuan
+buena fue la solución encontrada entre todas.
 
-Este cálculo se realiza comparando a la solución encontrada con la solución ideal, dividiendo la cantidad de selecciones que deberían 
-haber hecho para encontrar la solución ideal con la cantidad de selecciones realizadas efectivamente.
+Este cálculo se realiza comparando a la solución encontrada con la solución ideal, dividiendo la
+cantidad de selecciones que deberían haber hecho para encontrar la solución ideal con la cantidad
+de selecciones realizadas efectivamente.
 
 Una selección es una posición dentro de la solución con un valor asignado distinto de cero.
 
@@ -593,131 +592,49 @@ El trabajo de cada hormiga se detalla a continuacion con un diagrama de flujo
 
 \section{Casos de prueba - EN PROCESO}
 
-Para evaluar el comportamiento de ambos algoritmos utilizamos los casos de prueba obtenidos de \url{http://lipas.uwasa.fi/~timan/sudoku/}, ordenados en tres categorías: fácil, medio y difícil.
-Al discutir la naturaleza de los métodos de resolución, supusimos que aquellos dentro de la categoría difícil no iban a presentar dificultades en dicho proceso. Con respecto a aquellos categorizados como dificultad media y difícil creímos que los algoritmos podrían acercarse a alguna solución pero conservar algunos conflictos.
+Para evaluar el comportamiento de ambos algoritmos utilizamos los casos de prueba obtenidos de
+\url{http://lipas.uwasa.fi/~timan/sudoku/}, ordenados en tres categorías: \textit{fácil, medio y difícil}.
+
+Al discutir la naturaleza de los métodos de resolución, supusimos que aquellos dentro de la
+categoría \emph{fácil} no iban a presentar dificultades en dicho proceso. Con respecto a aquellos
+categorizados como dificultad \emph{media} y \emph{difícil} creímos que los algoritmos podrían
+acercarse a alguna solución pero conservar algunos conflictos.
 
 \noindent
 \begin{minipage}{0.50\textwidth}
-\includegraphics[width=\textwidth]{./graficos/conflictosDificil.png}
-\includegraphics[width=\textwidth]{./graficos/conflictosFacil.png}
-\label{G}
+	\includegraphics[width=\textwidth]{./graficos/conflictosDificil.png}
+	\includegraphics[width=\textwidth]{./graficos/conflictosFacil.png}
+	\label{G}
 \end{minipage}
 \begin{minipage}{0.50\textwidth}
-\includegraphics[width=\textwidth]{./graficos/conflictosMedia.png}
-\includegraphics[width=\textwidth]{./graficos/conflictosTodas.png}
+	\includegraphics[width=\textwidth]{./graficos/conflictosMedia.png}
+	\includegraphics[width=\textwidth]{./graficos/conflictosTodas.png}
 \end{minipage}
 
-Como resultado de la experimentación podemos ver que aunque los casos en los que no se pudo calcular una solución se encuentran en mayor proporción en la categoría difícil, en todas las categorías hubo instancias que presentaron conflictos.
+Como resultado de la experimentación podemos ver que aunque los casos en los que no se pudo calcular una
+solución se encuentran en mayor proporción en la categoría difícil, en todas las categorías hubo instancias
+que presentaron conflictos.
 
-Con respecto al tiempo de procesamiento, creímos que a mayor dificultad, mayor sería la cantidad de cálculos a realizar por lo cual, los algoritmos tardarían mas tiempo para encontrar una solución. Para estudiar este comportamiento corrimos los distintos casos de prueba tomando el tiempo de ejecución:
+Con respecto al tiempo de procesamiento, creímos que a mayor dificultad, mayor sería la cantidad de cálculos
+a realizar por lo cual, los algoritmos tardarían más tiempo para encontrar una solución. Para estudiar este
+comportamiento corrimos los distintos casos de prueba tomando el tiempo de ejecución:
 
 \begin{center}
-\includegraphics[width=0.8\textwidth]{./graficos/categoriaVsTiempo.png}
+	\includegraphics[width=0.8\textwidth]{./graficos/categoriaVsTiempo.png}
 \end{center}
 
-Luego de las pruebas realizadas notamos que el tiempo necesario para obtener una solución (o una solución aproximada), no depende del nivel de complejidad de los juegos. Nuestras presunciones eran erradas. 
-% DEJO ESTE TEXTO COMO EJEMPLO
-% 
-% Para evaluar el comportamiento de ambos algorítmos utilizamos casos de prueba
-% generados con la aplicación \emph{qqwing}\footnote{\url{http://qqwing.com/}}. Este nos permite generar tableros
-% sudoku de distinta dificultad.
-% 
-% Para esto generamos veinte tableros de cada tipo de dificultad para poder
-% evaluar el comportamiento de ámbos algorítmos y la asignación reportada por cada
-% uno.
-% 
-% Los tableros generados fueron del tipo facil, medio y difícil. Cada uno está
-% determinado por la dificultad de resolución lógico deductiva. Esto lo hicimos de
-% esta manera para poder mostrar la relación entre este tipo de dificultad y la
-% corrida de los algoritmos.
-% 
-% Para las figuras  \ref{img:histo_easy}, \ref{img:histo_med} y
-% \ref{img:histo_hard}, corrimos ambos algoritmos con un set de 20 instancias de
-% sudoku generadas al azar para determinar cual es la eficacia del altorítmo para
-% 3000 iteraciones (este valor se determinó empiricamente en base a esperimentos
-% anteriores).
-% Podemos observar la cantidad de soluciones óptimas que ha obtenido cada
-% algorítmo. Observamos que Threshold Accepting supera a Búsqueda local por más de
-% un 50\%.
-% 
-% También se observa que la convergencia de las soluciones es buena, es decir que
-% todos los valores que se han obtenido están en un entorno cercano a la solución
-% óptima.
-% 
-% 
-% \begin{center}
-%     \begin{figure}
-%         \includegraphics[width=\textwidth]{./imgs/problemas_easy_histo.png}
-%         \caption{Histograma asignación Búsqueda local (LS) y Threshold
-%         Accepting (TA) para el conjunto de problemas fácil)}
-%         \label{img:histo_easy}
-%     \end{figure}
-% \end{center}
-% \begin{center}
-%     \begin{figure}
-%         \includegraphics[width=\textwidth]{./imgs/problemas_med_histo.png}
-%         \caption{Histograma asignación Búsqueda local (LS) y Threshold
-%         Accepting (TA) para el conjunto de problemas mediano}
-%         \label{img:histo_med}
-%     \end{figure}
-% \end{center}
-% \begin{center}
-%     \begin{figure}
-%         \includegraphics[width=\textwidth]{./imgs/problemas_hard_histo.png}
-%         \caption{Histograma asignación Búsqueda local (LS) y Threshold
-%         Accepting (TA) para el conjunto de problemas difícil}
-%         \label{img:histo_hard}
-%     \end{figure}
-% \end{center}
-% 
-% También observamos que en \ref{img:histo_med} la obtención del óptimo es mucho
-% mayor. Cosa que no se reproduce en \ref{img:histo_easy} ni en
-% \ref{img:histo_hard}. Esto nos muestra que no depende de la facilidad de
-% resolución del problema (en términos lógico deductivos) sino más bien en la
-% distribución de los vecinos.
-% 
-% Si observamos el comportamiento de los algoritmos con un tablero fijo y variando
-% la cantidad de iteraciones que precisa para alcanzar el óptimo obtenemos las
-% figuras \ref{img:prog_ls} y \ref{img:prog_ta}. Para esto se generaron 50
-% corridas de asignación variando la cantidad de iteraciones admitidas para el
-% algoritmo de 100 a 3000.
-% 
-% Las figuras presentan las medias y varianzas observacionales de los
-% experimentos.
-% 
-% 
-% \begin{center}
-%     \begin{figure}[H]
-%         \includegraphics[width=\textwidth]{./imgs/BLsol_progresion.png}
-%         \caption{Progresión de parámetro máxima cantidad de iteraciones para Búsqueda Local}
-%         \label{img:prog_ls}
-%     \end{figure}
-% \end{center}
-% 
-% 
-% \begin{center}
-%     \begin{figure}[H]
-%         \includegraphics[width=\textwidth]{./imgs/TAsol_progresion.png}
-%         \caption{Progresión de parámetro máxima cantidad de iteraciones para
-%         Threshold Accepting}
-%         \label{img:prog_ta}
-%     \end{figure}
-% \end{center}
-% 
-% Determinamos que los algoritmos se estabilizan luego de las 3000 iteraciones
-% aunque la varianza para la asignación es muy elevada. Esto nos indica que el
-% espacio de soluciones es muy grande y por lo tanto en algunos casos los mínimos locales
-% alcanzados son difíciles de sobrellevar.
-% 
-% 
+Luego de las pruebas realizadas notamos que el tiempo necesario para obtener una solución óptima (o una parcial),
+no depende del nivel de complejidad de los juegos. Nuestras presunciones eran erradas.
+
 
 \section{Discusión}
 
 En este trabajo experimentamos con la resolución del problema de Sudoku con dos
 heurísticas distintas: de búsqueda local y Ant Colony.
 
-Encontramos que Threshold Accepting resuelve más instancias del problema que
-Búsqueda local con una penalidad en cantidad de operaciones.
+%%
+%%  FALTA UN POCO MAS ACAAA
+%%
 
 Encontramos que no hay relación entre la dificultad de resolver los problemas de
 manera lógico deductivo con la resolución algorítmica utilizando estos métodos.
