@@ -7,6 +7,7 @@
 #include <string>
 #include <iostream>
 #include <cctype>
+#include <chrono>
 
 #define For3( a, a_lim, b, b_lim, c, c_lim) \
 	for(int a = 0; a < a_lim; a++) \
@@ -30,8 +31,10 @@ auto selected = 0;
 auto can_select = 0;
 
 auto cycles = 400;
-auto ants = 600;
-
+auto ants = 50;
+auto ant = 0;
+auto cycle = 0;
+auto r = 0.999;
 
 //Input Grid
 Grid a = Grid(9, Line(9, -1));
@@ -55,7 +58,7 @@ Grid mb = Grid(9, Line(9,-1));
 Grid gmb = Grid(9, Line(9, -1));
 
 
-auto r = 0.9;
+
 
 bool include_in_submatrix(int n, int i, int j)
 {
@@ -152,6 +155,10 @@ void print_sudoku()
 	print_sudoku(gmb);
 }
 
+Cube zeroc = Cube(9, Grid(9, Line(9, 0)));
+Grid zerog = Grid(9, Line(9, 0));
+
+
 void solve_sudoku()
 {
 	std::random_device rd;
@@ -161,17 +168,18 @@ void solve_sudoku()
 	std::uniform_int_distribution<> disk(0, 8);
 
 	t = Cube(9, Grid(9, Line(9, 1000)));
-	for (auto cycle = 0; cycle < cycles; cycle++)
+	for (cycle = 0; cycle < cycles; cycle++)
 	{
 		maxselected = 0;
-		for (auto ant = 0; ant < ants; ant++)
+		for (ant = 0; ant < ants; ant++)
 		{
-			w = Cube(9, Grid(9, Line(9, 0)));
-			digit_row = Grid(9, Line(9, 0));
-			digit_column = Grid(9, Line(9, 0));
-			places = Cube(9, Grid(9, Line(9, 0)));
-			digits = Grid(9, Line(9, 0));
-			p = Cube(9, Grid(9, Line(9, 0)));
+			
+			w = zeroc;
+			digit_row = zerog;
+			digit_column = zerog;
+			places = zeroc;
+			digits = zerog;
+			p = zeroc;
 
 			not_selected_pos.clear();
 
@@ -226,7 +234,7 @@ void solve_sudoku()
 						digit_column[std::get<1>(pos)][k] = 1;
 
 						update_places();
-						not_selected_pos.erase(std::remove(not_selected_pos.begin(), not_selected_pos.end(), std::make_tuple(i, j)), not_selected_pos.end());
+						not_selected_pos.erase(std::remove(not_selected_pos.begin(), not_selected_pos.end(), std::make_tuple(std::get<0>(pos), std::get<1>(pos))), not_selected_pos.end());
 						selected++;
 						one_done = true;
 					}
@@ -273,6 +281,11 @@ void solve_sudoku()
 							digit_column[j][lastone] = 1;
 							update_places();
 							not_selected_pos.erase(std::remove(not_selected_pos.begin(), not_selected_pos.end(), std::make_tuple(i, j)), not_selected_pos.end());
+						}
+
+						if (digits[i][j] != 0)
+						{
+							int stop = 1;
 						}
 
 						if (digits[i][j] == 0)
@@ -375,7 +388,7 @@ void solve_sudoku()
 					system("cls");
 					std::cout << "Cycle: " << cycle << " of " << cycles << std::endl;
 					std::cout << "Ant: " << ant << " of " << ants << std::endl;
-					std::cout << "Selected: " << selected << std::endl << std::endl << std::endl;
+					std::cout << "Selected: " << selected << std::endl << std::endl;
 					print_sudoku();
 				}
 
@@ -438,18 +451,190 @@ void solve_sudoku()
 int main()
 {
 	std::ifstream file;
-	std::string test = "s16.txt";
-	
-	file.open(TESTS_PATH + test);
+	std::string test = "s";
+	std::string ext = ".txt";
 
+	std::ofstream fileo;
+	std::string testo = "anakalaoutput.txt";
+	//fileo.open(TESTS_PATH + testo);
+
+	std::chrono::time_point<std::chrono::system_clock> start, end;
+	
+	/*double sum = 0;
+	for (int i = 1; i < 10; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			sum = 0;
+			for (int k = 0; k < 10; k++)
+			{
+				std::string l;
+				if (j == 0) l = "a";
+				if (j == 1) l = "b";
+				if (j == 2) l = "c";
+				std::string path = test + "0" + std::to_string(i) + l + ext;
+				file.open(TESTS_PATH + path);
+
+				int v = -1;
+				For2(i, 9, j, 9)
+				{
+					file >> v;
+					a[i][j] = v - 1;
+				}
+
+				start = std::chrono::system_clock::now();
+				solve_sudoku();
+				end = std::chrono::system_clock::now();
+
+				std::chrono::duration<double> elapsed_seconds = end - start;
+
+				sum += std::chrono::duration_cast<std::chrono::milliseconds>(elapsed_seconds).count();
+			
+				
+
+				file.close();
+			}
+
+			fileo << 81 - selected << "	" << sum / 10.0 << std::endl;
+		}
+	}
+	/**/
+	
+	/*fileo.close();
+	testo = "output2.txt";
+	fileo.open(TESTS_PATH + testo);
+	for (int i = 10; i < 16; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			sum = 0;
+			for (int k = 0; k < 10; k++)
+			{
+				std::string l;
+				if (j == 0) l = "a";
+				if (j == 1) l = "b";
+				if (j == 2) l = "c";
+				std::string path = test + std::to_string(i) + l + ext;
+				file.open(TESTS_PATH + path);
+
+				int v = -1;
+				For2(i, 9, j, 9)
+				{
+					file >> v;
+					a[i][j] = v - 1;
+				}
+
+				start = std::chrono::system_clock::now();
+				solve_sudoku();
+				end = std::chrono::system_clock::now();
+
+				std::chrono::duration<double> elapsed_seconds = end - start;
+
+				sum += std::chrono::duration_cast<std::chrono::milliseconds>(elapsed_seconds).count();
+
+				
+				file.close();
+			}
+			fileo << 81 - selected << "	" << sum / 10.0 << std::endl;
+		}
+	}
+
+	fileo.close();
+	testo = "output3.txt";
+	fileo.open(TESTS_PATH + testo);
+	sum = 0;
+	for (int k = 0; k < 10; k++)
+	{
+		file.open(TESTS_PATH + std::string("s16.txt"));
+
+		int v = -1;
+		For2(i, 9, j, 9)
+		{
+			file >> v;
+			a[i][j] = v - 1;
+		}
+
+		start = std::chrono::system_clock::now();
+		solve_sudoku();
+		end = std::chrono::system_clock::now();
+
+		std::chrono::duration<double> elapsed_seconds = end - start;
+
+		sum += std::chrono::duration_cast<std::chrono::milliseconds>(elapsed_seconds).count();
+
+		file.close();
+	}
+
+	fileo << 81 - selected << "	" << sum / 10.0 << std::endl;
+	/**/
+	
+	/*
+	file.open(TESTS_PATH + std::string("u01.txt"));
+	fileo.close();
+	testo = "output4.txt";
+	fileo.open(TESTS_PATH + testo);
+
+	int v = -1;
+	sum = 0;
+	for (int k = 0; k < 10; k++)
+	{
+		For2(i, 9, j, 9)
+		{
+			file >> v;
+			a[i][j] = v - 1;
+		}
+
+		start = std::chrono::system_clock::now();
+		solve_sudoku();
+		end = std::chrono::system_clock::now();
+
+		std::chrono::duration<double> elapsed_seconds = end - start;
+
+		sum += std::chrono::duration_cast<std::chrono::milliseconds>(elapsed_seconds).count();
+
+		
+	}
+	
+	
+	fileo << 81 - selected << "	" << sum / 10.0 << std::endl;
+	/**/
+
+	file.open(TESTS_PATH + std::string("s16.txt"));
 	int v = -1;
 	For2(i, 9, j, 9)
 	{
 		file >> v;
-		a[i][j] = v-1;
+		a[i][j] = v - 1;
+	}
+	
+	double sum = 0;
+	testo = "s16output.txt";
+	fileo.open(TESTS_PATH + testo);
+
+	ants = 0;
+	for (int k = 0; k < 10; k++)
+	{
+		ants += 10;
+		sum = 0;
+		for (int jj = 0; jj < 10; jj++)
+		{
+			start = std::chrono::system_clock::now();
+			solve_sudoku();
+			end = std::chrono::system_clock::now();
+
+			std::chrono::duration<double> elapsed_seconds = end - start;
+			double t = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed_seconds).count();
+			sum += t;
+		}
+		fileo << cycle << "	" << ant << "	" << sum / 10 << std::endl;
 	}
 
-	//print_sudoku(a);
-	solve_sudoku();
+	fileo << 81 - selected << "	" << sum / 10.0 << std::endl;
+	/**/
+
 	
+
+
+	file.close();
+	fileo.close();
 }
