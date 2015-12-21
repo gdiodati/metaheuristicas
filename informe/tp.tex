@@ -1,10 +1,10 @@
 \documentclass[a4paper,spanish]{article}
+\usepackage[spanish]{babel}
 
 \usepackage{url}
 \usepackage{tabu}
 \usepackage{float}
 \usepackage{cite}
-\usepackage[spanish]{cleveref}
 \usepackage[colorlinks]{hyperref}
 \usepackage{fancyvrb}
 
@@ -454,102 +454,125 @@ Y por último se realiza la evaporización de la feromona de acuerdo a un valor 
 
 \clearpage
 
-\section{Casos de prueba - HACER !!!}
+\section{Casos de prueba - EN PROCESO}
 
-DEJO ESTE TEXTO COMO EJEMPLO
+Para evaluar el comportamiento de ambos algorítmos utilizamos los casos de prueba obtenidos de \url{http://lipas.uwasa.fi/~timan/sudoku/}, ordenados en tres categorías: fácil, medio y difícil.
+Al discutir la naturaleza de los métodos de resolución, supusimos que aquellos dentro de la categoría difícil no iban a presentar dificultades en dicho proceso. Con respecto a aquellos categorizados como dificultad media y difícil creímos que los agoritmos podrían acercarse a alguna solución pero conservar algunos conflictos.
+ 
+\noindent
+\begin{minipage}{0.50\textwidth}
+\includegraphics[width=\textwidth]{./graficos/conflictosDificil.png}
+\includegraphics[width=\textwidth]{./graficos/conflictosFacil.png}
+\label{G}
+\end{minipage}
+\begin{minipage}{0.50\textwidth}
+\includegraphics[width=\textwidth]{./graficos/conflictosMedia.png}
+\includegraphics[width=\textwidth]{./graficos/conflictosTodas.png}
+\end{minipage}
 
-Para evaluar el comportamiento de ambos algorítmos utilizamos casos de prueba
-generados con la aplicación \emph{qqwing}\footnote{\url{http://qqwing.com/}}. Este nos permite generar tableros
-sudoku de distinta dificultad.
+Como resultado de la experimentación podemos ver que aunque los casos en los que no se pudo calcular una solución se encuentran en mayor proporción en la categoría difícil, en todas las categorías hubo instancias que presentaron conflictos.
 
-Para esto generamos veinte tableros de cada tipo de dificultad para poder
-evaluar el comportamiento de ámbos algorítmos y la asignación reportada por cada
-uno.
-
-Los tableros generados fueron del tipo facil, medio y difícil. Cada uno está
-determinado por la dificultad de resolución lógico deductiva. Esto lo hicimos de
-esta manera para poder mostrar la relación entre este tipo de dificultad y la
-corrida de los algoritmos.
-
-Para las figuras  \ref{img:histo_easy}, \ref{img:histo_med} y
-\ref{img:histo_hard}, corrimos ambos algoritmos con un set de 20 instancias de
-sudoku generadas al azar para determinar cual es la eficacia del altorítmo para
-3000 iteraciones (este valor se determinó empiricamente en base a esperimentos
-anteriores).
-Podemos observar la cantidad de soluciones óptimas que ha obtenido cada
-algorítmo. Observamos que Threshold Accepting supera a Búsqueda local por más de
-un 50\%.
-
-También se observa que la convergencia de las soluciones es buena, es decir que
-todos los valores que se han obtenido están en un entorno cercano a la solución
-óptima.
-
+Con respecto al tiempo de procesamiento, creímos que a mayor dificultad, mayor sería la cantidad de cálculos a realizar por lo cual, los algoritmos tardarían mas tiempo para encontrar una solución. Para estudiar este comportamiento corrimos los distintos casos de prueba tomando el tiempo de ejecución:
 
 \begin{center}
-    \begin{figure}
-        \includegraphics[width=\textwidth]{./imgs/problemas_easy_histo.png}
-        \caption{Histograma asignación Búsqueda local (LS) y Threshold
-        Accepting (TA) para el conjunto de problemas fácil)}
-        \label{img:histo_easy}
-    \end{figure}
-\end{center}
-\begin{center}
-    \begin{figure}
-        \includegraphics[width=\textwidth]{./imgs/problemas_med_histo.png}
-        \caption{Histograma asignación Búsqueda local (LS) y Threshold
-        Accepting (TA) para el conjunto de problemas mediano}
-        \label{img:histo_med}
-    \end{figure}
-\end{center}
-\begin{center}
-    \begin{figure}
-        \includegraphics[width=\textwidth]{./imgs/problemas_hard_histo.png}
-        \caption{Histograma asignación Búsqueda local (LS) y Threshold
-        Accepting (TA) para el conjunto de problemas difícil}
-        \label{img:histo_hard}
-    \end{figure}
+\includegraphics[width=0.8\textwidth]{./graficos/categoriaVsTiempo.png}
 \end{center}
 
-También observamos que en \ref{img:histo_med} la obtención del óptimo es mucho
-mayor. Cosa que no se reproduce en \ref{img:histo_easy} ni en
-\ref{img:histo_hard}. Esto nos muestra que no depende de la facilidad de
-resolución del problema (en términos lógico deductivos) sino más bien en la
-distribución de los vecinos.
-
-Si observamos el comportamiento de los algoritmos con un tablero fijo y variando
-la cantidad de iteraciones que precisa para alcanzar el óptimo obtenemos las
-figuras \ref{img:prog_ls} y \ref{img:prog_ta}. Para esto se generaron 50
-corridas de asignación variando la cantidad de iteraciones admitidas para el
-algoritmo de 100 a 3000.
-
-Las figuras presentan las medias y varianzas observacionales de los
-experimentos.
-
-
-\begin{center}
-    \begin{figure}[H]
-        \includegraphics[width=\textwidth]{./imgs/BLsol_progresion.png}
-        \caption{Progresión de parámetro máxima cantidad de iteraciones para Búsqueda Local}
-        \label{img:prog_ls}
-    \end{figure}
-\end{center}
-
-
-\begin{center}
-    \begin{figure}[H]
-        \includegraphics[width=\textwidth]{./imgs/TAsol_progresion.png}
-        \caption{Progresión de parámetro máxima cantidad de iteraciones para
-        Threshold Accepting}
-        \label{img:prog_ta}
-    \end{figure}
-\end{center}
-
-Determinamos que los algoritmos se estabilizan luego de las 3000 iteraciones
-aunque la varianza para la asignación es muy elevada. Esto nos indica que el
-espacio de soluciones es muy grande y por lo tanto en algunos casos los mínimos locales
-alcanzados son difíciles de sobrellevar.
-
-
+Luego de las pruebas realizadas notamos que el tiempo necasario para obtener una solución (o una solución aproximada), no depende del nivel de complejidad de los juegos. Nuestras presunciones eran erradas. 
+% DEJO ESTE TEXTO COMO EJEMPLO
+% 
+% Para evaluar el comportamiento de ambos algorítmos utilizamos casos de prueba
+% generados con la aplicación \emph{qqwing}\footnote{\url{http://qqwing.com/}}. Este nos permite generar tableros
+% sudoku de distinta dificultad.
+% 
+% Para esto generamos veinte tableros de cada tipo de dificultad para poder
+% evaluar el comportamiento de ámbos algorítmos y la asignación reportada por cada
+% uno.
+% 
+% Los tableros generados fueron del tipo facil, medio y difícil. Cada uno está
+% determinado por la dificultad de resolución lógico deductiva. Esto lo hicimos de
+% esta manera para poder mostrar la relación entre este tipo de dificultad y la
+% corrida de los algoritmos.
+% 
+% Para las figuras  \ref{img:histo_easy}, \ref{img:histo_med} y
+% \ref{img:histo_hard}, corrimos ambos algoritmos con un set de 20 instancias de
+% sudoku generadas al azar para determinar cual es la eficacia del altorítmo para
+% 3000 iteraciones (este valor se determinó empiricamente en base a esperimentos
+% anteriores).
+% Podemos observar la cantidad de soluciones óptimas que ha obtenido cada
+% algorítmo. Observamos que Threshold Accepting supera a Búsqueda local por más de
+% un 50\%.
+% 
+% También se observa que la convergencia de las soluciones es buena, es decir que
+% todos los valores que se han obtenido están en un entorno cercano a la solución
+% óptima.
+% 
+% 
+% \begin{center}
+%     \begin{figure}
+%         \includegraphics[width=\textwidth]{./imgs/problemas_easy_histo.png}
+%         \caption{Histograma asignación Búsqueda local (LS) y Threshold
+%         Accepting (TA) para el conjunto de problemas fácil)}
+%         \label{img:histo_easy}
+%     \end{figure}
+% \end{center}
+% \begin{center}
+%     \begin{figure}
+%         \includegraphics[width=\textwidth]{./imgs/problemas_med_histo.png}
+%         \caption{Histograma asignación Búsqueda local (LS) y Threshold
+%         Accepting (TA) para el conjunto de problemas mediano}
+%         \label{img:histo_med}
+%     \end{figure}
+% \end{center}
+% \begin{center}
+%     \begin{figure}
+%         \includegraphics[width=\textwidth]{./imgs/problemas_hard_histo.png}
+%         \caption{Histograma asignación Búsqueda local (LS) y Threshold
+%         Accepting (TA) para el conjunto de problemas difícil}
+%         \label{img:histo_hard}
+%     \end{figure}
+% \end{center}
+% 
+% También observamos que en \ref{img:histo_med} la obtención del óptimo es mucho
+% mayor. Cosa que no se reproduce en \ref{img:histo_easy} ni en
+% \ref{img:histo_hard}. Esto nos muestra que no depende de la facilidad de
+% resolución del problema (en términos lógico deductivos) sino más bien en la
+% distribución de los vecinos.
+% 
+% Si observamos el comportamiento de los algoritmos con un tablero fijo y variando
+% la cantidad de iteraciones que precisa para alcanzar el óptimo obtenemos las
+% figuras \ref{img:prog_ls} y \ref{img:prog_ta}. Para esto se generaron 50
+% corridas de asignación variando la cantidad de iteraciones admitidas para el
+% algoritmo de 100 a 3000.
+% 
+% Las figuras presentan las medias y varianzas observacionales de los
+% experimentos.
+% 
+% 
+% \begin{center}
+%     \begin{figure}[H]
+%         \includegraphics[width=\textwidth]{./imgs/BLsol_progresion.png}
+%         \caption{Progresión de parámetro máxima cantidad de iteraciones para Búsqueda Local}
+%         \label{img:prog_ls}
+%     \end{figure}
+% \end{center}
+% 
+% 
+% \begin{center}
+%     \begin{figure}[H]
+%         \includegraphics[width=\textwidth]{./imgs/TAsol_progresion.png}
+%         \caption{Progresión de parámetro máxima cantidad de iteraciones para
+%         Threshold Accepting}
+%         \label{img:prog_ta}
+%     \end{figure}
+% \end{center}
+% 
+% Determinamos que los algoritmos se estabilizan luego de las 3000 iteraciones
+% aunque la varianza para la asignación es muy elevada. Esto nos indica que el
+% espacio de soluciones es muy grande y por lo tanto en algunos casos los mínimos locales
+% alcanzados son difíciles de sobrellevar.
+% 
+% 
 
 \section{Discusión}
 
