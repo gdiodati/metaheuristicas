@@ -340,20 +340,36 @@ La meta heurística general consiste de lo siguiente:
 En principio, todas las hormigas se mueven de manera aleatoria, buscando por si solas un camino 
 al recurso que están buscando (una posible solución)
 
-Una vez encontrada una solución, las hormigas vuelven dejando un rastro de feromonas, 
+Una vez encontrada una solución, la hormiga vuelve dejando un rastro de feromonas, 
 este rastro puede ser mayor o menor dependiendo de lo buena que sea la solución encontrada.
 Utilizando este rastro de feromonas, las hormigas pueden compartir información entre sus distintos 
 pares en la colonia. 
 
-Cuando una nueva hormiga inicia su trabajo, es atraida por la feromona depositada por las hormigas 
-anteriores, y así aumenta las probabilidades de que una siguiente hormiga siga sus pasos.
+Cuando una nueva hormiga inicia su trabajo, es influenciada por la feromona depositada por las hormigas 
+anteriores, y así aumenta las probabilidades de que esta siga los pasos de sus anteriores al acercarse 
+a un recurso previamente encontrado.
+
+\begin{figure}
+	\centering
+	\includegraphics[scale=0.2]{./img/antscolonyalg.png}
+	\caption{Ant colony}
+	\label{img:ants}
+\end{figure}
 
 Esta feromona además tiene un factor de evaporación, esto produce que los caminos pierdan su 
 fuerza de atracción, cuanto más largos sea el camino, más tiempo demorará una hormiga en recorrerlo, 
 más se evaporará la feromona y por ende serán menos frecuentados, por su parte los caminos más cortos 
-(o más óptimos) tendrán mayor cantidad de feromonas, por ende, mayor probabilidad de ser frecuentados.
+(o más óptimos) tendrán mayor cantidad de feromonas, por ende, mayor probabilidad de ser frecuentados.\ref{img:ants}.
+
+En computación podemos expandir este concepto biologico de interoperabilidad entre las hormigas, para construir
+y combinar distintas soluciones parciales a un problema. En particular utilizaremos este concepto para
+resolver el problema de Sudoku, el cual será representado como una grilla de 9x9 con ciertas restricciones que se
+detallarán en breve.
 
 \subsection{Ant Colony para Sudoku}
+
+Nuestra implementación está fuertemente basada en el paper de Krzysztof Schif, tomando decisión sobre algunas
+cuestiones que no estaban debidamente cubiertas por el documento o que parecian ambiguas.
 
 La solución (u objetivo) se establece como un tablero de 9x9 posiciones, todo número que pertenece a la 
 solución debe cumplir las tres reglas de Sudoku. Nos obstante pueden existir posiciones vacías sin ningún valor.
@@ -397,17 +413,28 @@ Además, para el caso del Sudoku, se considera que los elementos deben cumplir c
 no puede elegirse un dígito que ya exista en la fila, columna o subgrilla de la posición a la que se lo quiere agregar. 
 En ese caso se considera que la probabilidad de elegirlo es cero.
 
-\subsubsection{El trabajo de cada hormiga}
+\subsection{El trabajo de cada hormiga}
 
 Al principio del trabajo de cada hormiga, está puede encontrar que existan posiciones a las cuales únicamente pueda asignarles 
-un dígito entre las nueve opciones iniciales.
+un dígito entre las nueve opciones iniciales.\ref{img:soloundigito}.
 
-//AGREGAR DIBUJO EJEMPLO
+\begin{figure}
+	\centering
+	\includegraphics[scale=0.4]{./img/soloundigito.png}
+	\caption{Ant colony}
+	\label{img:soloundigito}
+\end{figure}
+
 
 También puede ocurrir que para ciertos dígitos posibles que puede tomar una posición de la solución, exista una subgrilla tal que 
-solamente posea una única posición en la que pueda contener este dígito.
+solamente posea una única posición en la que pueda contener este dígito.\ref{img:undigitosolo}.
 
-//AGREGAR DIBUJO EJEMPLO
+\begin{figure}
+	\centering
+	\includegraphics[scale=0.4]{./img/undigitosolo.png}
+	\caption{Ant colony}
+	\label{img:undigitosolo}
+\end{figure}
 
 Cuando alguna de estas dos situaciones ocurre, estos valores son asignados inmediatamente.
 
@@ -434,6 +461,7 @@ En donde:
 	\item digits: Es la función que dada una posición (i,j) me devuelve la cantidad de colores que puedo colocar en dicha posición
 \end{itemize}
 
+\subsection{Actualización de feromona}
 
 Una vez que todas las hormigas realizan su trabajo, se deja un rastro de feromona de acuerdo a cuan buena fue la solución encontrada entre todas.
 
@@ -449,8 +477,117 @@ La actualización de la feromona queda de la siguiente manera:
 \end{equation}
 
 Y por último se realiza la evaporación de la feromona de acuerdo a un valor fijado al comienzo del algoritmo.
+Hay que tomar recordar que la feromona para este caso, no se aplica únicamente a una posición del tablero sino
+a la dupla [posición, dígito] de acuerdo a cuando buena resultó la solución final encontrada por todo un grupo
+de hormigas, que incluia ese dígito en esa posición.
+
+Inicialmente todos los pares [posición, dígito] comienzan con un nivel de feromona de valor 1000.
+
+Para todas las duplas [posición, dígito] que no se incluyan en la solución encontrada por el conjunto de hormigas
+estas posiciónes solamente serán afectabas por el factor de evaporización, el cual es constante y es un parametro
+de entrada del algoritmo.
+
+El factor de evaporización se utiliza para evitar una convergencia a un optimo local que no sea el que estamos buscando.
+
+\subsection{Decisiones de la implementación}
+
+\subsubsection{Selección random de cada paso}
+
+Una de las cuestiones que no estaba aclarada en el paper fue como calcular el siguiente paso a dar por cada hormiga.
+Es decir, cuales de entre todas las posiciones elegir y que dígito poner en esta posición.
+
+El paper hace referencia a que ciertas posiciones y dígitos tienen más probabilidad de ocurrir que otros. Calcular esto
+puede no ser trivial y una elección distinta puede llevar a resultados distintos.
+
+Además, en el paper no se hace referencia a si esta selección la hace entre todos los elementos de la grilla o solamente 
+entre los que todavia no fueron actualizados. Tampoco menciona si primero selecciona una posición y luego un dígito para 
+agregar en esta, o vice versa, primero selecciona un dígito posible a agregar a la grilla y luego una posicicón entre
+las posibles a agregar este dígito.
+
+En nuestra implementación optamos solamente considerar a los elementos que para un determinado momento puede ser seleccionados, 
+es decir, entre aquellas posiciones que todavia no tienen un dígito asignado y entre los posibles dígitos para esta posición.
+
+Para implementar la selección random, evaluamos distintas opciones y utilizamos el siguiente metodo:
 
 
+\begin{verbatim}
+prob = maxProbabilidad
+probabilidadAcumulada = 0
+
+while probabilidadAcumulada < prob 
+{
+  pos = posicionRandom(posicionesAunNoSeleccionadas)
+  dig = digitoRandom(digitoFactiblePara(pos))
+
+  probabilidadAcumulada += p[pos, dig]
+}
+\end{verbatim}
+
+\subsubsection{Cantidad de selecciones por iteración}
+
+Una cuestion importante es la cantidad de paso que cada hormiga puede realizar en cada una de sus iteraciones, si puede
+realizar más de un paso, si realiza varios y se queda con el mejor, o si puede realizar solamente uno.
+
+En caso de realizar varios pasos además, sera necesario contemplar que ocurre si realiza pasos que no sean compatibles o si 
+antes de realizar cada paso deberá verificar que sea factible realizarlo.
+
+Para nuestra implementación, cada hormiga realiza únicamente pasos que sean factible, que no contradigan ninguna regla
+de Sudoku. Además, por cada iteración la hormiga realiza unicamente un paso.
+
+\subsubsection{Finalización del trabajo de la hormiga}
+
+Algo que queda ambigüo en la descripcion del algoritmo es como se finaliza el trabajo de una hormiga.
+
+La hormiga puede terminar de realizar su trabajo cuando:
+
+\begin{itemize}
+	\item Ya no tiene más posibles posiciones en las cuales agregar un dígito
+	\item Cuando encuentra al menos una posición en la cual no agregar un dígito.
+\end{itemize}
+ 
+Además, lo mismo podria ocurrir con los dígito respecto de las posiciones, se encuentra un dígito que no puede ser agregado
+en ninguna posición de una subgrilla de 3x3
+
+La diferencia entre estos dos casos es que para el primero, la hormiga intentará encontrar la mejor solución posible, aún
+cuando ya sabe que no podrá resolver el problema por ese camino.
+
+En el segundo caso la hormiga intentará resolver la solución hasta el punto en el que sepa que ese camino no la llevará a
+una solución deseada, sin intentar mejorar la solución actual (ley del menor esfuerzo)
+
+
+\subsection{Pseudo código}
+
+El pseudo codigo a grandes razgos queda de la siguiente manera:
+
+\begin{verbatim}
+
+forEach ciclo
+{
+  forEach hormiga
+  {
+    solucionParcialDeHormiga = realizarTrabajoDeHormiga
+    
+    if (solucionParcialDeHormiga es mejor que solucionParcial )
+    {
+      solucionParcial = solucionParcialDeHormiga
+    }
+  }
+  if (solucionParcial es mejor que solucionFinal )
+  {
+    solucionFinal = solucionParcial
+  }
+}
+
+\end{verbatim}
+
+El trabajo de cada hormiga se detalla a continuacion con un diagrama de flujo
+
+\begin{figure}
+	\centering
+	\includegraphics[scale=0.6]{./img/trabajodehormiga.png}
+	\caption{Ant colony}
+	\label{img:ants}
+\end{figure}
 
 \clearpage
 
