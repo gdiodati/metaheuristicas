@@ -188,7 +188,7 @@ while (ColoredNodes < 81) {
 
 Dado que es un algoritmo goloso, es altamente probable que no de una solución óptima.
 En los casos que no se pueda asignar un color, o un número del 1-9, el algoritmo
-utiliza números mas grandes, y continua buscando una solución.
+utiliza números mas grandes, y continúa buscando una solución.
 
 Decimos que un nodo es conflictivo si cumple la siguiente condición:
 
@@ -328,7 +328,7 @@ La metaheurística general consiste de lo siguiente:
 En principio, todas las hormigas se mueven de manera aleatoria, buscando por si solas
 un camino al recurso que están buscando (una posible solución).
 
-Una vez encontrada una solución, la hormiga vuelve dejando un rastro de feromonas, 
+Una vez encontrada una solución, la hormiga vuelve dejando un rastro de feromonas; 
 este rastro puede ser mayor o menor dependiendo de lo buena que sea la solución encontrada.
 Utilizando este rastro de feromonas, las hormigas pueden compartir información entre sus
 distintos pares en la colonia. 
@@ -345,22 +345,22 @@ anteriores al acercarse a un recurso previamente encontrado.
 \end{figure}
 
 Esta feromona además tiene un factor de evaporación, esto produce que los caminos pierdan
-su fuerza de atracción, cuanto más largos sea el camino, más tiempo demorará una hormiga
-en recorrerlo, más se evaporará la feromona y por ende serán menos frecuentados, por su parte
+su fuerza de atracción, cuanto más largo sea el camino, más tiempo demorará una hormiga
+en recorrerlo, más se evaporará la feromona y por ende serán menos frecuentado. Por su parte
 los caminos más cortos (o más óptimos) tendrán mayor cantidad de feromonas, por ende, mayor
 probabilidad de ser frecuentados. Figura \ref{img:ants}.
 
 En computación podemos expandir este concepto biológico de interoperabilidad entre las hormigas,
-para construir y combinar distintas soluciones parciales a un problema. En particular utilizaremos
+para construír y combinar distintas soluciones parciales a un problema. En particular utilizaremos
 este concepto para resolver el problema de Sudoku, el cual será representado como una grilla
-de 9x9 con ciertas restricciones que se detallarán en breve.
+de 9x9 con ciertas restricciones que se detallarán a continuación.
 
 \clearpage
 
 \subsection{Ant Colony para Sudoku}
 
 Nuestra implementación está fuertemente basada en el paper de Krzysztof Schif \cite{ant_colony},
-tomando decisión sobre algunas cuestiones que no estaban debidamente cubiertas por el documento
+tomando decisiónes sobre algunas cuestiones que no estaban debidamente cubiertas por el documento
 o que parecían ambiguas.
 
 La solución (u objetivo) se establece como un tablero de 9x9 posiciones, todo número que
@@ -375,13 +375,13 @@ Además, existe un tablero T, de tres dimensiones, 9x9x9. En este tablero se rep
 posibles soluciones que van encontrando las hormigas y será utilizado para depositar el valor
 de feromona de cada elemento de acuerdo a como este pueda o no ser parte de la solución final.
 
-Tomar en cuenta que este tablero no tiene en cuenta las permutaciones de los elementos,
+Notar que este tablero no tiene en cuenta las permutaciones de los elementos,
 solamente sirve como guía para cada hormiga al momento de tener que realizar una elección
 para su siguiente paso.
 
-Al principio del algoritmo, todos los elemento de T tiene un valor máximo de feromona. A medida
+Al principio del algoritmo, todos los elemento de T tienen un valor máximo de feromona. A medida
 que las hormigas realizan su trabajo, van depositando para cada dupla [posición, dígito] un valor
-de feromona de acuerdo a cuando buena fue la solución que incluye a esa dupla.
+de feromona de acuerdo a cuan buena fue la solución que incluye a esa dupla.
 
 El algoritmo está compuesto por dos ciclos principales anidados, uno para repetir el trabajo en
 conjunto de todas las hormigas y otro para que cada hormiga realice su trabajo individualmente.
@@ -413,8 +413,8 @@ posición a la que se lo quiere agregar. En ese caso se considera que la probabi
 
 \subsection{El trabajo de cada hormiga}
 
-Al principio del trabajo de cada hormiga, está puede encontrar que existan posiciones a las cuales
-únicamente pueda asignarles un dígito entre las nueve opciones iniciales. Figura \ref{img:soloundigito}.
+Al principio del trabajo de cada hormiga, esta puede encontrar que existen posiciones a las cuales
+únicamente puede asignarles un dígito entre las nueve opciones iniciales. Figura \ref{img:soloundigito}.
 
 \begin{figure}[h]
 	\centering
@@ -423,7 +423,7 @@ Al principio del trabajo de cada hormiga, está puede encontrar que existan posi
 	\label{img:soloundigito}
 \end{figure}
 
-También puede ocurrir que para ciertos dígitos posibles que puede tomar una posición de la solución,
+También puede ocurrir que para los dígitos posibles que puede tomar una posición de la solución,
 exista una subgrilla tal que solamente posea una única posición en la que pueda contener este dígito.
 Figura \ref{img:undigitosolo}.
 
@@ -490,7 +490,7 @@ final encontrada por todo un grupo de hormigas, que incluía ese dígito en esa 
 Inicialmente todos los pares \emph{[posición, dígito]} comienzan con un nivel de feromona de valor $1000$.
 
 Para todas las duplas \emph{[posición, dígito]} que no se incluyan en la solución encontrada por el conjunto
-de hormigas estas posiciones solamente serán afectabas por el factor de evaporación, el cual es
+de hormigas estas posiciones solamente serán afectadas por el factor de evaporación, el cual es
 constante y es un parámetro de entrada del algoritmo. El factor de evaporación se utiliza para evitar
 una convergencia a un óptimo local que no sea el que estamos buscando.
 
@@ -509,7 +509,7 @@ la grilla o solamente entre los que todavía no fueron actualizados. Tampoco men
 selecciona una posición y luego un dígito para agregar en esta, o vice versa, primero selecciona un
 dígito posible a agregar a la grilla y luego una posición entre las posibles a agregar este dígito.
 
-En nuestra implementación optamos solamente considerar a los elementos que para un determinado
+En nuestra implementación optamos solamente considerar a los elementos que, para un determinado
 momento puede ser seleccionados, es decir, entre aquellas posiciones que todavía no tienen un dígito
 asignado y entre los posibles dígitos para esta posición.
 
@@ -530,28 +530,28 @@ while probabilidadAcumulada < prob {
 
 \subsubsection{Cantidad de selecciones por iteración}
 
-Una cuestión importante es la cantidad de paso que cada hormiga puede realizar en cada una de sus
+Una cuestión importante es la cantidad de pasos que cada hormiga puede realizar en cada una de sus
 iteraciones, si puede realizar más de un paso, si realiza varios y se queda con el mejor, o si
 puede realizar solamente uno.
 
 En caso de realizar varios pasos además, sera necesario contemplar que ocurre si realiza pasos que
 no sean compatibles o si antes de realizar cada paso deberá verificar que sea factible realizarlo.
 
-Para nuestra implementación, cada hormiga realiza únicamente pasos que sean factible, que no
+Para nuestra implementación, cada hormiga realiza únicamente pasos que sean factibles, es decir, que no
 contradigan ninguna regla de Sudoku. Además, por cada iteración la hormiga realiza únicamente un paso.
 
 \subsubsection{Finalización del trabajo de la hormiga}
 
-Algo que queda ambiguo en la descripción del algoritmo es como se finaliza el trabajo de una hormiga.
+Algo que resulta ambiguo en la descripción del algoritmo es como se finaliza el trabajo de una hormiga.
 
 La hormiga puede terminar de realizar su trabajo cuando:
 
 \begin{itemize}
-	\item Ya no tiene más posibles posiciones en las cuales agregar un dígito
+	\item Ya no tiene posibles posiciones en las cuales agregar un dígito.
 	\item Cuando encuentra al menos una posición en la cual no agregar un dígito.
 \end{itemize}
  
-Además, lo mismo podría ocurrir con los dígito respecto de las posiciones, se encuentra un dígito
+Además, lo mismo podría ocurrir con los dígitos respecto de las posiciones, si se encuentra un dígito
 que no puede ser agregado en ninguna posición de una subgrilla de 3x3.
 
 La diferencia entre estos dos casos es que para el primero, la hormiga intentará encontrar la mejor
@@ -635,16 +635,16 @@ Nuestras presunciones eran erradas.
 Para el caso de los test con Ant Colony no incluiremos gráficos de porcentajes de problemas resueltos y
 no resueltos dado que logramos resolverlos todos.
 
-Entre los problemas que resolvimos, la mayoria los resolvió rápidamente, nunca demorando más de 5 minutos.
+Entre los problemas que resolvimos, la mayoría los resolvió rápidamente, nunca demorando más de 5 minutos.
 
-En la mayoria de los problemas fáciles no se llegaba ni a la primera iteración de un ciclo
+En la mayoría de los problemas fáciles no se llegaba ni a la primera iteración de un ciclo
 principal de Ant Colony, es decir, el primer grupo de hormigas encontraba la solución.
 
 Esto es importante de notar dado que significa que el algoritmo está logrando encontrar la solución 
 partiendo desde la heurística de cada hormiga, sin compartir entre sí la feromona.
-Para problemas más avanzados ahi si se notó la utilización de 1 o más ciclos principales.
+Para problemas más avanzados si se notó la utilización de 1 o más ciclos principales.
 
-Utilizamos estos problemas más avanzados para testear los distintos parametros del algoritmo. En particular
+Utilizamos estos problemas más avanzados para testear los distintos parámetros del algoritmo. En particular
 nos interesó testear como afectaba la cantidad de hormigas y el nivel de feromona compartido entre ellas
 a la performance del algoritmo.
 
@@ -655,7 +655,7 @@ Los resultados son los siguientes:
 
 GRAFICO AQUI
 
-Posteriormente evaluamos que ocurria si decrementabamos la cantidad de feromona de 0.999 a 0.809 utilizando
+Posteriormente evaluamos que ocurria si decrementábamos la cantidad de feromona de 0.999 a 0.809 utilizando
 el mejor valor obtenido en la prueba anterior para la cantidad de hormigas.
 
 Los resultados son los siguientes:
@@ -681,34 +681,33 @@ combinatorio de estas características. Sin embargo es probable que no encuentre
 el mínimo global dado las limitaciones que presentan en su diseño.
 
 
-Respecto a Ant Colony lo que notamos es que la cantidad de hormigas a utilizar para problemoas
-fácil afecta despreciablemente sobre el tiempo de ejecucición, dado que encuentra una solución con
+Respecto a Ant Colony lo que notamos es que la cantidad de hormigas a utilizar para problemoas categorizados como
+fáciles es despreciable con respecto a el tiempo de ejecucición, dado que encuentra una solución con
 menos de 30 hormigas promedio.
 
 Por otro lado puede apreciarse una mayor relación respecto a la cantidad de hormigas que se 
 utilizan y su resultado en los tiempos de ejecución en problemas dificiles. Llegamos a que un valor
 adecuado seria de 75 hormigas para estos casos.
 
-En cuanto a las variaciones al factor de evaporizacion de la feromona, nuevamente para los casos fáciles
-este valor no afecta, dado que no llega a utilizarse la feromona en la busqueda de la solución optima.
+En cuanto a las variaciones al factor de evaporización de la feromona, nuevamente para los casos de la categorìa fácil
+este valor no afecta, dado que no llega a utilizarse la feromona en la búsqueda de la solución óptima.
 
-No obstante para los problemas más dificil, este valor toma mayor significancia, dado que al iterar más 
-de una vez, la feromona comienza a ser compartir y utilizada por las iteraciones posteriores de grupos
+No obstante para los problemas catregrorizados como difíciles, este valor toma mayor significado, dado que al iterar más 
+de una vez, la feromona comienza a ser compartida y utilizada por las iteraciones posteriores de grupos
 de hormigas. En caso de tener un valor de evaporización de feromona inferior a los 0.95 el tiempo de
 convergencia e incluso la convergencia misma pueden resultar afectadas negativamente.
 
 Vale la pena mencionar que los resultados son distintos a los que se ven en el paper de donde tomamos
-la idea del algoritmo. Nuestra implementación resulto funcionar mucho más rápido en terminos de cantidad
+la idea del algoritmo. Nuestra implementación resultó funcionar mucho más rápido en terminos de cantidad
 de ciclos y de hormigas.
 
 Creemos que estas diferencias pueden ser por dos cosas: 
-Por un lado podria ser que no probamos el mismo caso que fue evaluado en el paper. Si bien comparamos nuestras
+Por un lado podría ser que no probamos el mismo caso que fue evaluado en el paper. Si bien comparamos nuestras
 corridas con instancias de pruebas de la base de datos mencionada en el paper original, no supimos con exactitud 
 cuales fueron las instancias que demoraron el algoritmo tantos ciclos como se ve en las gráficas.
 Por otro lado pensamos que la diferencia pueda deberse a las diferencias de implementacion que pueden existir
 entre nuestra implementacion y la original, dado que varios detalles de la misma no se mencionan.
 
-Intentamos comunicarnos con quien escribio el paper para resolver estas dudas, pero no obtuvimos exito.
 
 \clearpage
 
