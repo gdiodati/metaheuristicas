@@ -342,15 +342,18 @@ al recurso que están buscando (una posible solución)
 
 Una vez encontrada una solución, las hormigas vuelven dejando un rastro de feromonas, 
 este rastro puede ser mayor o menor dependiendo de lo buena que sea la solución encontrada.
-Además, este mecanismo es utilizado para compartir información entre todas las hormigas de la colonia 
-dado que su valor aumenta las probabilidades de que una siguiente hormiga siga sus pasos.
+Utilizando este rastro de feromonas, las hormigas pueden compartir información entre sus distintos 
+pares en la colonia. 
+
+Cuando una nueva hormiga inicia su trabajo, es atraida por la feromona depositada por las hormigas 
+anteriores, y así aumenta las probabilidades de que una siguiente hormiga siga sus pasos.
 
 Esta feromona además tiene un factor de evaporación, esto produce que los caminos pierdan su 
 fuerza de atracción, cuanto más largos sea el camino, más tiempo demorará una hormiga en recorrerlo, 
 más se evaporará la feromona y por ende serán menos frecuentados, por su parte los caminos más cortos 
 (o más óptimos) tendrán mayor cantidad de feromonas, por ende, mayor probabilidad de ser frecuentados.
 
-\section{Ant Colony para Sudoku}
+\subsection{Ant Colony para Sudoku}
 
 La solución (u objetivo) se establece como un tablero de 9x9 posiciones, todo número que pertenece a la 
 solución debe cumplir las tres reglas de Sudoku. Nos obstante pueden existir posiciones vacías sin ningún valor.
@@ -394,7 +397,7 @@ Además, para el caso del Sudoku, se considera que los elementos deben cumplir c
 no puede elegirse un digito que ya exista en la fila, columna o subgrilla de la posición a la que se lo quiere agregar. 
 En ese caso se considera que la probabilidad de elegirlo es cero.
 
-\section{El trabajo de cada hormiga}
+\subsubsection{El trabajo de cada hormiga}
 
 Al principio del trabajo de cada hormiga, está puede encontrar que existan posiciones a las cuales únicamente pueda asignarles 
 un dígito entre las nueve opciones iniciales.
