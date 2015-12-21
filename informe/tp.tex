@@ -592,7 +592,7 @@ El trabajo de cada hormiga se detalla a continuación con un diagrama de flujo \
 
 \clearpage
 
-\section{Casos de prueba - EN PROCESO}
+\section{Casos de prueba}
 
 Para evaluar el comportamiento de ambos algoritmos utilizamos los casos de prueba obtenidos de
 \url{http://lipas.uwasa.fi/~timan/sudoku/}, ordenados en tres categorías: \textit{fácil, medio y difícil}.
@@ -644,19 +644,19 @@ Esto es importante de notar dado que significa que el algoritmo está logrando e
 partiendo desde la heurística de cada hormiga, sin compartir entre sí la feromona.
 Para problemas más avanzados si se notó la utilización de 1 o más ciclos principales.
 
-Utilizamos estos problemas más avanzados para testear los distintos parámetros del algoritmo. En particular
-nos interesó testear como afectaba la cantidad de hormigas y el nivel de feromona compartido entre ellas
-a la performance del algoritmo.
+Utilizamos estos problemas más avanzados para evaluar los distintos parámetros del algoritmo.
+En particular nos interesó evaluar como afectaba la cantidad de hormigas y el nivel de feromona
+compartido entre ellas a la performance del algoritmo.
 
 Comenzamos evaluando cuanto se modificaban los tiempos para encontrar una solución aumentando 
-la cantidad de hormigas de 10 en 10 con una misma instancia (la más dificil de nuestro set de prueba)
+la cantidad de hormigas de 10 en 10 con una misma instancia (la más difícil de nuestro set de prueba)
 
 Los resultados son los siguientes:
 
 GRAFICO AQUI
 
-Posteriormente evaluamos que ocurria si decrementábamos la cantidad de feromona de 0.999 a 0.809 utilizando
-el mejor valor obtenido en la prueba anterior para la cantidad de hormigas.
+Posteriormente evaluamos que ocurría si decrementábamos la cantidad de feromona de $0.999$ a
+$0.809$ utilizando el mejor valor obtenido en la prueba anterior para la cantidad de hormigas.
 
 Los resultados son los siguientes:
 
@@ -668,10 +668,6 @@ GRAFICO AQUI
 En este trabajo experimentamos con la resolución del problema de Sudoku con dos
 heurísticas distintas: de búsqueda local y Ant Colony.
 
-%%
-%%  FALTA UN POCO MAS ACAAA
-%%
-
 Encontramos que no hay relación entre la dificultad de resolver los problemas de
 manera lógico deductivo con la resolución algorítmica utilizando estos métodos.
 
@@ -681,32 +677,36 @@ combinatorio de estas características. Sin embargo es probable que no encuentre
 el mínimo global dado las limitaciones que presentan en su diseño.
 
 
-Respecto a Ant Colony lo que notamos es que la cantidad de hormigas a utilizar para problemoas categorizados como
-fáciles es despreciable con respecto a el tiempo de ejecucición, dado que encuentra una solución con
-menos de 30 hormigas promedio.
+Respecto a Ant Colony lo que notamos es que la cantidad de hormigas a utilizar para
+problemas categorizados como fáciles es despreciable con respecto a el tiempo de ejecución,
+dado que encuentra una solución con menos de 30 hormigas promedio.
 
 Por otro lado puede apreciarse una mayor relación respecto a la cantidad de hormigas que se 
-utilizan y su resultado en los tiempos de ejecución en problemas dificiles. Llegamos a que un valor
-adecuado seria de 75 hormigas para estos casos.
+utilizan y su resultado en los tiempos de ejecución en problemas difíciles. Llegamos a que
+un valor adecuado seria de 75 hormigas para estos casos.
 
-En cuanto a las variaciones al factor de evaporización de la feromona, nuevamente para los casos de la categorìa fácil
-este valor no afecta, dado que no llega a utilizarse la feromona en la búsqueda de la solución óptima.
+En cuanto a las variaciones al factor de evaporación de la feromona, nuevamente para los
+casos de la categoría \emph{fácil} este valor no afecta, dado que no llega a utilizarse la
+feromona en la búsqueda de la solución óptima.
 
-No obstante para los problemas catregrorizados como difíciles, este valor toma mayor significado, dado que al iterar más 
-de una vez, la feromona comienza a ser compartida y utilizada por las iteraciones posteriores de grupos
-de hormigas. En caso de tener un valor de evaporización de feromona inferior a los 0.95 el tiempo de
-convergencia e incluso la convergencia misma pueden resultar afectadas negativamente.
+No obstante para los problemas categorizados como \emph{difíciles}, este valor toma mayor
+significado, dado que al iterar más de una vez, la feromona comienza a ser compartida y
+utilizada por las iteraciones posteriores de grupos de hormigas. En caso de tener un valor
+de evaporación de feromona inferior a los $0.95$ el tiempo de convergencia e incluso la
+convergencia misma pueden resultar afectadas negativamente.
 
-Vale la pena mencionar que los resultados son distintos a los que se ven en el paper de donde tomamos
-la idea del algoritmo. Nuestra implementación resultó funcionar mucho más rápido en terminos de cantidad
-de ciclos y de hormigas.
+Vale la pena mencionar que los resultados son distintos a los que se ven en el paper de
+donde tomamos la idea del algoritmo. Nuestra implementación resultó funcionar mucho más rápido
+en términos de cantidad de ciclos y de hormigas.
 
 Creemos que estas diferencias pueden ser por dos cosas: 
-Por un lado podría ser que no probamos el mismo caso que fue evaluado en el paper. Si bien comparamos nuestras
-corridas con instancias de pruebas de la base de datos mencionada en el paper original, no supimos con exactitud 
-cuales fueron las instancias que demoraron el algoritmo tantos ciclos como se ve en las gráficas.
-Por otro lado pensamos que la diferencia pueda deberse a las diferencias de implementacion que pueden existir
-entre nuestra implementacion y la original, dado que varios detalles de la misma no se mencionan.
+
+Por un lado podría ser que no probamos el mismo caso que fue evaluado en el paper. Si bien 
+comparamos nuestras corridas con instancias de pruebas de la base de datos mencionada en el paper
+original, no supimos con exactitud cuales fueron las instancias que demoraron el algoritmo tantos
+ciclos como se ve en las gráficas. Por otro lado pensamos que la diferencia pueda deberse a las
+diferencias de implementación que pueden existir entre nuestra implementación y la original, dado
+que varios detalles de la misma no se mencionan.
 
 
 \clearpage
