@@ -625,15 +625,12 @@ calcular una solución se encuentran en mayor proporción en la categoría \emph
 en todas las categorías hubo instancias que presentaron conflictos.
 
 
-\clearpage
-
 \subsection{Ant Colony}
 
 Para el caso de los test con Ant Colony no incluiremos gráficos de porcentajes de problemas resueltos y
 no resueltos dado que logramos resolverlos todos.
 
 Entre los problemas que resolvimos, la mayoría los resolvió rápidamente, nunca demorando más de 5 minutos.
-
 En la mayoría de los problemas fáciles no se llegaba ni a la primera iteración de un ciclo
 principal de Ant Colony, es decir, el primer grupo de hormigas encontraba la solución.
 
@@ -646,27 +643,61 @@ En particular nos interesó evaluar como afectaba la cantidad de hormigas y el n
 compartido entre ellas a la performance del algoritmo.
 
 Comenzamos evaluando cuanto se modificaban los tiempos para encontrar una solución aumentando 
-la cantidad de hormigas de 10 en 10 con una misma instancia (la más difícil de nuestro set de prueba)
-
-Los resultados son los siguientes:
+la cantidad de hormigas de 10 en 10 con una misma instancia (la más difícil de nuestro set de prueba).
+Los resultados se pueden ver en la figura \ref{img:time_ants}.
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[scale=0.6]{./img/tiempohormigas.png}
+	\includegraphics[scale=0.55]{./img/tiempohormigas.png}
 	\caption{Tiempo / Hormigas}
+	\label{img:time_ants}
 \end{figure}
 
 
 Posteriormente evaluamos que ocurría si decrementábamos la cantidad de feromona de $0.999$ a
 $0.809$ utilizando el mejor valor obtenido en la prueba anterior para la cantidad de hormigas.
 
-Los resultados son los siguientes:
+Los resultados son los de la figura \ref{img:feromon_ant}:
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[scale=0.6]{./img/feromona_tiempo.png}
+	\includegraphics[scale=0.45]{./img/feromona_tiempo.png}
 	\caption{Feromona / Tiempo}
+	\label{img:feromon_ant}
 \end{figure}
+
+\clearpage
+
+\subsubsection{Ambas metaheurísticas}
+
+Dado que \emph{Ant Colony} resuelve todos los Sudoku que probamos pero la
+de \emph{Búsqueda Local} no siempre, comparamos estas metaheurísticas con las
+instancias que los 2 terminaron en un tiempo comparable.
+
+Las instancias más difíciles quedaron fuera de este gráfico, pues la
+metaheurísticas de \emph{Búsqueda Local} tomaba demasiado tiempo, incluso
+no termino en algunos casos.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.6]{./graficos/tiemposAmbasMetaheuristicas.png}
+	\caption{Tiempos de ambas metaheurísticas}
+	\label{img:times}
+\end{figure}
+
+Como podemos observar, más allá de la diferencia de los tiempos, el comportamiento
+o la dificultad de los Sudoku para los algoritmos se corresponden entre sí, pero no
+con la categoría.
+
+En casi todos los casos más sencillos para los dos, a \emph{DSatur} le va mejor. Pero
+en los casos que a ambos les cuesta más llegar a una solución, \emph{Ant Colony} converge
+mucho más rápido que la otra metaheurística. Figura \ref{img:times}.
+
+Esto puede pasar por que a \emph{Búsqueda Local} le cuesta salir de un mínimo local que
+no es solución al Sudoku o porque \emph{Ant Colony} encuentra una solución inicial
+más cercana a la solución final.
+
+
 \clearpage
 
 \section{Discusión}
